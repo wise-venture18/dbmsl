@@ -1,0 +1,72 @@
+PRAC 9:
+9.Write a database trigger on Library table. The System should keep track of the
+records that are being updated or deleted. The old value of updated or deleted records should be added in Library_ Audit table. Frame the problem statement for writing Database Triggers of all types, in-line with above statement. The problem statement should clearly state the requirements.
+
+Step 1: Table Creation
+-- Create the main Library table
+CREATE TABLE Library (
+    Book_ID     NUMBER PRIMARY KEY,
+    Book_Name   VARCHAR2(50),
+    Author      VARCHAR2(50),
+    Price       NUMBER
+);
+
+-- Create the Library_Audit table to store old (deleted or updated) records
+CREATE TABLE Library_Audit (
+    Audit_ID    NUMBER GENERATED ALWAYS AS IDENTITY,
+    Book_ID     NUMBER,
+    Book_Name   VARCHAR2(50),
+    Author      VARCHAR2(50),
+    Price       NUMBER,
+    Operation   VARCHAR2(20),
+    Operation_Date DATE
+);
+________________________________________
+⚙️ Step 2: Create the Trigger
+Save the following code in Notepad as library_trigger.sql
+-- Trigger: trg_library_audit
+-- Purpose: To track updated or deleted records from Library table
+
+CREATE OR REPLACE TRIGGER trg_library_audit
+AFTER UPDATE OR DELETE ON Library
+FOR EACH ROW
+BEGIN
+    -- Insert the old record details into Library_Audit table
+    INSERT INTO Library_Audit (Book_ID, Book_Name, Author, Price, Operation, Operation_Date)
+    VALUES (
+        :OLD.Book_ID,
+        :OLD.Book_Name,
+        :OLD.Author,
+        :OLD.Price,
+        CASE
+            WHEN DELETING THEN 'DELETE'
+            WHEN UPDATING THEN 'UPDATE'
+        END,
+        SYSDATE
+    );
+END;
+/
+
+Insert Sample Data in Library
+INSERT INTO Library (Book_ID, Book_Name, Author, Price)
+VALUES (101, 'DBMS Concepts', 'Navathe', 500);
+
+INSERT INTO Library (Book_ID, Book_Name, Author, Price)
+VALUES (102, 'Operating Systems', 'Silberschatz', 650);
+
+INSERT INTO Library (Book_ID, Book_Name, Author, Price)
+VALUES (103, 'Computer Networks', 'Tanenbaum', 550);
+
+COMMIT;
+
+Update Operation
+UPDATE Library
+SET Price = 700
+WHERE Book_ID = 101;
+🔹 Delete Operation
+DELETE FROM Library
+WHERE Book_ID = 102;
+
+Check the Audit Log
+SELECT * FROM Library_Audit;
+

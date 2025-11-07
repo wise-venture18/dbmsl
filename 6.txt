@@ -1,0 +1,58 @@
+6.Cursors: 
+DECLARE
+    -- Declare variables to store data fetched from N_RollCall
+    v_rollno   N_RollCall.RollNo%TYPE;
+    v_name     N_RollCall.Name%TYPE;
+    v_status   N_RollCall.Status%TYPE;
+
+    -- Parameterized cursor: fetches records from N_RollCall based on roll number range
+    CURSOR cur_new_rollcall(p_min_rollno NUMBER, p_max_rollno NUMBER) IS
+        SELECT RollNo, Name, Status
+        FROM N_RollCall
+        WHERE RollNo BETWEEN p_min_rollno AND p_max_rollno;
+
+    -- Variable to check if record exists in O_RollCall
+    v_count NUMBER;
+BEGIN
+    -- Open the cursor for a given roll number range (you can modify range as per your data)
+    OPEN cur_new_rollcall(1, 100);
+
+    LOOP
+        FETCH cur_new_rollcall INTO v_rollno, v_name, v_status;
+        EXIT WHEN cur_new_rollcall%NOTFOUND;
+
+        -- Check if record already exists in O_RollCall
+        SELECT COUNT(*) INTO v_count
+        FROM O_RollCall
+        WHERE RollNo = v_rollno;
+
+        -- If record doesn’t exist, insert it into O_RollCall
+        IF v_count = 0 THEN
+            INSERT INTO O_RollCall (RollNo, Name, Status)
+            VALUES (v_rollno, v_name, v_status);
+            DBMS_OUTPUT.PUT_LINE('Inserted RollNo: ' || v_rollno);
+        ELSE
+            DBMS_OUTPUT.PUT_LINE('Skipped RollNo: ' || v_rollno || ' (Already Exists)');
+        END IF;
+    END LOOP;
+
+    CLOSE cur_new_rollcall;
+
+    DBMS_OUTPUT.PUT_LINE('--- Merge Operation Completed ---');
+END;
+/
+
+-------------------------------  SQL ----------------------
+
+CREATE TABLE N_RollCall (
+    RollNo NUMBER PRIMARY KEY,
+    Name VARCHAR2(50),
+    Status VARCHAR2(10)
+);
+
+CREATE TABLE O_RollCall (
+    RollNo NUMBER PRIMARY KEY,
+    Name VARCHAR2(50),
+    Status VARCHAR2(10)
+);
+

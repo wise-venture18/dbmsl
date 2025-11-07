@@ -1,0 +1,86 @@
+CREATE TABLE student (
+    S_ID INT PRIMARY KEY,
+    name VARCHAR(50),
+    dept_name VARCHAR(50),
+    tot_cred INT
+);
+
+CREATE TABLE instructor (
+    T_ID INT PRIMARY KEY,
+    name VARCHAR(50),
+    dept_name VARCHAR(50),
+    salary DECIMAL(10,2)
+);
+
+CREATE TABLE course (
+    course_id INT PRIMARY KEY,
+    title VARCHAR(50),
+    dept_name VARCHAR(50),
+    credits INT
+);
+
+INSERT INTO student VALUES
+(1, 'Amit', 'Computer', 30),
+(2, 'Samantha', 'ENTC', 25),
+(3, 'Kamal', 'Computer', 28),
+(4, 'Namrata', 'Mechanical', 22),
+(5, 'Tamanna', 'Computer', 26);
+
+INSERT INTO instructor VALUES
+(101, 'Amol', 'Computer', 40000),
+(102, 'Amit', 'Mechanical', 45000),
+(103, 'Nikita', 'Computer', 48000),
+(104, 'Rohan', 'ENTC', 43000),
+(105, 'Nisha', 'Computer', 50000);
+
+INSERT INTO course VALUES
+(501, 'DBMS', 'Computer', 4),
+(502, 'OS', 'Computer', 3),
+(503, 'Mechanics', 'Mechanical', 3),
+(504, 'Electronics', 'ENTC', 3);
+
+
+select * from student;
+
+select * from course;
+
+select * from instructor;
+
+CREATE TABLE takes (
+    S_ID INT,
+    course_id INT,
+    FOREIGN KEY (S_ID) REFERENCES student(S_ID),
+    FOREIGN KEY (course_id) REFERENCES course(course_id)
+);
+
+INSERT INTO takes VALUES
+(1, 501),
+(2, 504),
+(3, 501),
+(4, 503),
+(5, 502);
+
+SELECT dept_name, AVG(salary) AS avg_salary
+FROM instructor
+GROUP BY dept_name
+HAVING AVG(salary) > 42000;
+
+UPDATE instructor
+SET salary = salary + (salary * 0.10)
+WHERE dept_name = 'Computer';
+
+SELECT * FROM instructor;
+
+SELECT name
+FROM instructor
+WHERE name NOT IN ('Amol', 'Amit');
+
+SELECT name
+FROM student
+WHERE name LIKE '%am%';
+
+SELECT s.name
+FROM student s
+JOIN takes t ON s.S_ID = t.S_ID
+JOIN course c ON t.course_id = c.course_id
+WHERE s.dept_name = 'Computer' AND c.title = 'DBMS';

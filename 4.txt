@@ -1,0 +1,110 @@
+Pract 4-:-
+- ================================================
+-- 1. Create Tables
+-- ================================================
+CREATE TABLE Borrower (
+    RollIn NUMBER PRIMARY KEY,
+    Name VARCHAR2(100),
+    DateOfIssue DATE,
+    NameOfBook VARCHAR2(100),
+    Status CHAR(1) CHECK (Status IN ('I','R'))  -- 'I' = Issued, 'R' = Returned
+);
+
+CREATE TABLE Fine (
+    Roll_no NUMBER,                         -- Foreign key to Borrower
+    DateOfFine DATE,
+    Amt NUMBER(10,2),
+    CONSTRAINT fk_roll_no FOREIGN KEY (Roll_no) REFERENCES Borrower(RollIn)
+);
+-- ================================================
+-- 2. Insert Sample Data into Borrower
+-- ================================================
+INSERT INTO Borrower (RollIn, Name, DateOfIssue, NameOfBook, Status)
+VALUES (101, 'Alice', TO_DATE('2025-09-01', 'YYYY-MM-DD'), 'Data Structures', 'I');
+INSERT INTO Borrower (RollIn, Name, DateOfIssue, NameOfBook, Status)
+VALUES (102, 'Bob', TO_DATE('2025-08-01', 'YYYY-MM-DD'), 'Algorithms', 'I');
+INSERT INTO Borrower (RollIn, Name, DateOfIssue, NameOfBook, Status)
+VALUES (103, 'Charlie', TO_DATE('2025-09-20', 'YYYY-MM-DD'), 'Database Systems', 'I');
+INSERT INTO Borrower (RollIn, Name, DateOfIssue, NameOfBook, Status)
+VALUES (104, 'David', TO_DATE('2025-09-10', 'YYYY-MM-DD'), 'Operating Systems', 'R');
+
+COMMIT;
+
+--edit Pract4.sql;
+-- ================================================
+-- 3. PL/SQL Block to Return Book & Calculate Fine
+-- ================================================
+DECLARE
+    v_roll_no        Borrower.RollIn%TYPE;
+    v_name_of_book   Borrower.NameOfBook%TYPE;
+    v_date_of_issue  Borrower.DateOfIssue%TYPE;
+    v_status         Borrower.Status%TYPE;
+    v_days           NUMBER;
+    v_fine_amt       NUMBER := 0;
+    v_today          DATE := SYSDATE;
+BEGIN
+    -- Accept Roll No and Book Name (replace & variables with actual values if needed)
+    v_roll_no := &Enter_Roll_No;               -- Example: 101
+    v_name_of_book := '&Enter_Book_Name';      -- Example: 'Data Structures'
+
+    -- Fetch DateOfIssue and Status
+    SELECT DateOfIssue, Status
+    INTO v_date_of_issue, v_status
+    FROM Borrower
+    WHERE RollIn = v_roll_no
+      AND NameOfBook = v_name_of_book;
+
+    -- Calculate number of days since issue
+    v_days := TRUNC(v_today) - TRUNC(v_date_of_issue);
+
+    -- Check if book is issued
+    IF v_status = 'I' THEN
+        -- Fine Calculation
+        IF v_days < 15 THEN
+            v_fine_amt := 0;                  -- Less than 15 days → no fine
+        ELSIF v_days <= 30 THEN
+            v_fine_amt := v_days * 5;         -- 15–30 days → Rs 5/day
+        ELSE
+            v_fine_amt := (30 * 5) + ((v_days - 30) * 50); -- >30 days → Rs 5/day first 30 + Rs 50/day after
+        END IF;
+
+        -- Update Borrower status to 'R' (Returned)
+        UPDATE Borrower
+        SET Status = 'R'
+        WHERE RollIn = v_roll_no
+          AND NameOfBook = v_name_of_book;
+
+        -- Insert fine record if fine > 0
+        IF v_fine_amt > 0 THEN
+            INSERT INTO Fine(Roll_no, DateOfFine, Amt)
+            VALUES (v_roll_no, v_today, v_fine_amt);
+        END IF;
+
+        -- Display output
+        DBMS_OUTPUT.PUT_LINE('Book returned successfully.');
+        DBMS_OUTPUT.PUT_LINE('Number of days since issue: ' || v_days);
+        IF v_fine_amt > 0 THEN
+            DBMS_OUTPUT.PUT_LINE('Fine applicable: Rs ' || v_fine_amt);
+        ELSE
+            DBMS_OUTPUT.PUT_LINE('No fine applicable.');
+        END IF;
+
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('Book is not currently issued or already returned.');
+    END IF;
+
+    COMMIT;
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Error: No record found for the given Roll No and Book.');
+    WHEN TOO_MANY_ROWS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: Multiple records found for the same Roll No and Book.');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('An unexpected error occurred: ' || SQLERRM);
+        ROLLBACK;
+END;
+/
+
+Sql> @pract4.sql
+--Output
