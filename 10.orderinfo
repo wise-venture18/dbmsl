@@ -1,0 +1,45 @@
+// 10. create Collection “orderinfo“ which contains the documents given as below(Perform on Mongo Terminal) 
+// { 
+// cust_id:123 
+// cust_name:”abc”, 
+// status:”A”, 
+// price:250 
+// } 
+// 1)	find the average price for each customers having status 'A' 
+// 2)	Display the status of the customers whose amount/price lie between 100 and 1000 
+// 3)	Display the customers information without “_id” . 
+// 4)	create a simple index on onderinfo collection and fire the queries. 
+
+
+// Execute Line By Line 
+
+// Step 1: Use Database
+use prac10
+
+// Step 2: Create Collection and Insert Documents
+db.orderinfo.insertMany([
+  {cust_id:123, cust_name:"abc", status:"A", price:250},
+  {cust_id:124, cust_name:"pqr", status:"B", price:400}
+])
+
+// Step 3: Find Average Price for Each Customer Having Status 'A'
+db.orderinfo.aggregate([
+  { $match: { status: "A" } },
+  { $group: { _id: "$cust_name", avgPrice: { $avg: "$price" } } }
+])
+
+// Step 4: Display Status of Customers Whose Price Lies Between 100 and 1000
+db.orderinfo.find(
+  { price: { $gte: 100, $lte: 1000 } },
+  { status: 1, _id: 0 }
+)
+
+// Step 5: Display Customer Information Without "_id"
+db.orderinfo.find({}, { _id: 0 })
+
+// Step 6: Create a Simple Index on orderinfo Collection and Fire a Query
+db.orderinfo.createIndex({ price: 1 })
+db.orderinfo.find({ price: { $gt: 200 } })
+
+// Step 7: (Optional) Verify Index Creation
+db.orderinfo.getIndexes()
