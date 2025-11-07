@@ -1,0 +1,110 @@
+-- **************************************
+-- PRACTICAL 20 – EMPLOYEE DUTY ALLOCATION DATABASE
+-- **************************************
+
+-- Step 1: Create and use database
+CREATE DATABASE dutydb;
+USE dutydb;
+
+-- Step 2: Drop old tables if they exist (cleanup)
+DROP TABLE IF EXISTS Duty_alloc;
+DROP TABLE IF EXISTS Empl;
+DROP TABLE IF EXISTS Position;
+
+-- Step 3: Create tables
+CREATE TABLE Empl (
+  e_no INT PRIMARY KEY,
+  e_name VARCHAR(50),
+  post VARCHAR(50),
+  pay_rate DECIMAL(10,2)
+);
+
+CREATE TABLE Position (
+  pos_no INT PRIMARY KEY,
+  post VARCHAR(50)
+);
+
+CREATE TABLE Duty_alloc (
+  pos_no INT,
+  e_no INT,
+  month VARCHAR(20),
+  year INT,
+  shift VARCHAR(20),
+  FOREIGN KEY (pos_no) REFERENCES Position(pos_no),
+  FOREIGN KEY (e_no) REFERENCES Empl(e_no)
+);
+
+-- Step 4: Insert sample data
+INSERT INTO Empl VALUES
+(101, 'Sachin', 'Manager', 50000),
+(102, 'Rohit', 'Clerk', 25000),
+(103, 'Kiran', 'Manager', 52000),
+(104, 'Amit', 'Technician', 28000),
+(105, 'Priya', 'Manager', 45000),
+(123, 'Sonal', 'Manager', 48000);
+
+INSERT INTO Position VALUES
+(1, 'Manager'),
+(2, 'Clerk'),
+(3, 'Technician');
+
+INSERT INTO Duty_alloc VALUES
+(1, 123, 'April', 2003, 'First'),
+(1, 101, 'April', 2003, 'Second'),
+(2, 102, 'May', 2003, 'First'),
+(1, 103, 'April', 2003, 'First'),
+(3, 104, 'June', 2003, 'Third'),
+(1, 105, 'April', 2003, 'First');
+
+-- Verify data
+SELECT * FROM Empl;
+SELECT * FROM Position;
+SELECT * FROM Duty_alloc;
+
+-- ***************************************************
+-- i) Get duty allocation details for e_no 123 for the
+--    first shift in the month of April 2003
+-- ***************************************************
+SELECT *
+FROM Duty_alloc
+WHERE e_no = 123
+  AND month = 'April'
+  AND year = 2003
+  AND shift = 'First';
+
+-- ***************************************************
+-- ii) Get employees whose pay_rate is >= pay_rate of employee 'Sachin'
+-- ***************************************************
+SELECT *
+FROM Empl
+WHERE pay_rate >= (
+  SELECT pay_rate FROM Empl WHERE e_name = 'Sachin'
+);
+
+-- ***************************************************
+-- iii) Create a view showing min, max, avg pay_rate for each post
+-- ***************************************************
+CREATE OR REPLACE VIEW PaySummary AS
+SELECT post,
+       MIN(pay_rate) AS Min_Pay,
+       MAX(pay_rate) AS Max_Pay,
+       AVG(pay_rate) AS Avg_Pay
+FROM Empl
+GROUP BY post;
+
+-- View data
+SELECT * FROM PaySummary;
+
+-- ***************************************************
+-- iv) Get count of different employees on each shift having post ‘Manager’
+-- ***************************************************
+SELECT d.shift,
+       COUNT(DISTINCT e.e_no) AS Manager_Count
+FROM Duty_alloc d
+JOIN Empl e ON e.e_no = d.e_no
+WHERE e.post = 'Manager'
+GROUP BY d.shift;
+
+-- **************************************
+-- END OF PRACTICAL 20
+-- **************************************
