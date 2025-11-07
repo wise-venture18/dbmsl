@@ -1,0 +1,139 @@
+19) MongoDB – Employee DB & emp1 collection ops
+##########19.Create database Employee.
+2.Create collection emp1 using createCollection method.
+3.Insert 4 to 5 documents in emp1 collection.(eno,ename,address,sal)
+4.display all documents.
+5.Display all employess having salary greater than 5000
+6.Display all employess having salary less than 15000
+7.Display all employess having salary greater than 10000 and less than 20000.
+8.Update sal of all employee with 10%
+9.Delete employee having salary less than 5000.
+10.Rename collection emp1 with employee1.
+11.Display employee whose name start with n.
+12.sort name in ascending order.
+13.Create a new database with name Employee1.
+14.Drop employee1 database.
+15.Create collection emp1 using insert method.
+16.Drop collection emp1.############################################
+
+
+----------------------------------------------------------------------------------
+use Employee;
+db.createCollection("emp1");
+db.emp1.insertMany([
+ {eno:1,ename:"neha",address:"pune",sal:12000},
+ {eno:2,ename:"nayan",address:"mumbai",sal:8000},
+ {eno:3,ename:"ravi",address:"pune",sal:22000}
+]);
+db.emp1.find();
+db.emp1.find({sal:{$gt:5000}});
+db.emp1.find({sal:{$lt:15000}});
+db.emp1.find({sal:{$gt:10000,$lt:20000}});
+db.emp1.updateMany({}, { $mul: { sal: 1.10 } })
+db.emp1.deleteMany({sal:{$lt:5000}});
+db.emp1.renameCollection("employee1");
+db.employee1.find({ ename: { $regex: /^n/i } })
+db.employee1.find().sort({ename:1});
+use Employee1; db.dropDatabase();
+use Employee; db.emp1.insertOne({eno:99}); db.emp1.drop();
+---------------------------------------------------------------------------------------
+
+
+🗄️ Code (with what it does)
+use Employee;
+
+
+Switches to (or creates) DB Employee.
+
+db.createCollection("emp1");
+
+
+Explicitly creates collection emp1 (optional—Mongo creates on first insert too).
+
+db.emp1.insertMany([
+ {eno:1, ename:"neha",  address:"pune",   sal:12000},
+ {eno:2, ename:"nayan", address:"mumbai", sal:8000},
+ {eno:3, ename:"ravi",  address:"pune",   sal:22000}
+]);
+
+
+Inserts 3 employee documents.
+
+db.emp1.find();
+
+
+Lists all documents.
+
+db.emp1.find({ sal: { $gt: 5000 } });
+
+
+Filter: salary greater than 5000.
+
+db.emp1.find({ sal: { $lt: 15000 } });
+
+
+Filter: salary less than 15000.
+
+db.emp1.find({ sal: { $gt: 10000, $lt: 20000 } });
+
+
+Range query (AND): 10k < sal < 20k.
+
+db.emp1.updateMany(
+  {},
+  [ { $set: { sal: { $round: [ { $multiply: ["$sal", 1.10] }, 0 ] } } } ]
+);
+
+
+Pipeline update: gives 10% hike to every document.
+
+$multiply increases salary by 1.10; $round rounds to 0 decimals.
+
+After this: 12000→13200, 8000→8800, 22000→24200.
+
+db.emp1.deleteMany({ sal: { $lt: 5000 } });
+
+
+Deletes any records with salary < 5000 (none in this dataset; safe no-op).
+
+db.emp1.renameCollection("employee1");
+
+
+Renames collection emp1 → employee1.
+
+db.employee1.find({ ename: /^n/i });
+
+
+Regex search: names starting with ‘n’ (case-insensitive).
+
+Matches "neha", "nayan".
+
+db.employee1.find().sort({ ename: 1 });
+
+
+Sorts all docs by ename in ascending order (A→Z).
+
+use Employee1; 
+db.dropDatabase();
+
+
+Switches to DB Employee1 (just to show) and drops the entire database (dangerous; removes all collections inside).
+
+use Employee; 
+db.emp1.insertOne({ eno: 99 }); 
+db.emp1.drop();
+
+
+Back to Employee DB, recreates a new emp1 with one temp doc, then drops the collection emp1.
+
+🧠 Why each concept matters (viva-ready)
+Concept / Operator			What it does								Example here
+$gt, $lt	   			Numeric comparisons								Salary filters
+Range AND	C			ombine conditions in one object								{sal:{$gt:10000,$lt:20000}}
+Pipeline update [ ... ]		Use aggregation operators in updates					10% hike with $multiply + $round
+updateMany vs updateOne		All matches vs first match							Hike for all docs
+renameCollection		Rename without copying									emp1 → employee1
+Regex /^n/i			Pattern match, case-insensitive								Names starting with ‘n’
+sort({field:1})			Ascending order												Sort by ename
+dropDatabase()			Deletes whole DB								Demonstration on Employee1
+drop()				Deletes one collection								Drops emp1

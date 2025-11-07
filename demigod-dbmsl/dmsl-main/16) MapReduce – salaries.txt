@@ -1,0 +1,189 @@
+16) MapReduce – salaries
+
+############316.Create database employee and create collection computer Define a map function to emit
+the "total" key and the "Salary" value for each document. Define a reduce function to sum the
+salaries associated with the "total" key. Execute the map-reduce operation on the "Computer"
+collection, specifying an output collection where the results will be stored.################
+
+--------------------------------------------------------------------------------------
+use employee;
+db.computer.insertMany([{ename:"a",Salary:10000},{ename:"b",Salary:15000}]);
+var map=function(){ emit("total", this.Salary); };
+var reduce=function(k,vals){ return Array.sum(vals); };
+db.computer.mapReduce(map, reduce, {out:{replace:"salaryTotals"}});
+db.salaryTotals.find();
+------------------------------------------------------------------------------
+
+💼 PS16 – MongoDB (MapReduce – Salaries)
+💡 Aim:
+
+Use MapReduce to calculate the total salary of all employees in the computer collection.
+
+✅ Step-by-Step Code with Explanation
+🧩 Step 1 — Create / Use database
+use employee;
+
+
+👉 Switches to (or creates) a database named employee.
+
+🧩 Step 2 — Insert records into computer collection
+db.computer.insertMany([
+  {ename:"a", Salary:10000},
+  {ename:"b", Salary:15000}
+]);
+
+🔍 Explanation:
+
+Creates a collection named computer.
+
+Inserts two employee documents:
+
+Employee a → Salary 10,000
+
+Employee b → Salary 15,000
+
+✅ Resulting Data:
+
+[
+  {ename:"a", Salary:10000},
+  {ename:"b", Salary:15000}
+]
+
+🧩 Step 3 — Define the Map function
+var map = function() { emit("total", this.Salary); };
+
+🔍 Explanation:
+
+The map function runs once per document.
+
+emit(key, value) → emits key-value pairs.
+
+Here, the key is "total" (same for all records) and the value is each employee’s Salary.
+
+So after map phase:
+
+emit("total", 10000)
+emit("total", 15000)
+
+🧩 Step 4 — Define the Reduce function
+var reduce = function(k, vals) { return Array.sum(vals); };
+
+🔍 Explanation:
+
+The reduce function takes:
+
+k → key (in this case "total")
+
+vals → array of all emitted salary values
+
+Array.sum(vals) → adds all salary values.
+
+So after reduce phase:
+
+total = 10000 + 15000 = 25000
+
+🧩 Step 5 — Execute MapReduce
+db.computer.mapReduce(map, reduce, { out: { replace: "salaryTotals" } });
+
+🔍 Explanation:
+
+Executes the MapReduce process:
+
+map → emits salaries.
+
+reduce → sums them.
+
+{ out: { replace: "salaryTotals" } } → saves output in a new collection named salaryTotals.
+
+✅ Output message:
+
+{
+  "result" : "salaryTotals",
+  "timeMillis" : 15,
+  "counts" : { "input" : 2, "emit" : 2, "reduce" : 1, "output" : 1 },
+  "ok" : 1
+}
+
+
+✅ It means:
+
+2 input documents
+
+2 emitted values
+
+1 reduce operation
+
+1 output document created
+
+🧩 Step 6 — View the results
+db.salaryTotals.find();
+
+
+✅ Output:
+
+[
+  { "_id": "total", "value": 25000 }
+]
+
+
+✅ This means total salary of all employees = 25,000
+
+🧠 Concept Explanation
+🧩 What is MapReduce?
+
+MapReduce = a two-phase process used for summarizing or processing large datasets.
+
+Phase	Function	Description
+Map	emit(key, value)	Maps each document to a key-value pair.
+Reduce	Array.sum(values)	Combines all values having the same key.
+
+Analogy (SQL equivalent):
+
+SELECT SUM(Salary) AS total FROM computer;
+
+
+MongoDB does the same using JavaScript functions.
+
+🧩 Why Use MapReduce?
+
+When you need custom aggregation logic (like complex calculations).
+
+Used for large-scale datasets or parallel data processing.
+
+Can perform multiple aggregations (sum, avg, min, max, etc.) in one pass.
+
+🧩 What is emit()?
+
+The core function of the Map phase.
+
+Syntax: emit(key, value)
+
+Sends key-value pairs to the Reduce phase.
+
+🧩 What is Array.sum()?
+
+A built-in MongoDB function used inside reduce.
+
+Adds up all numeric values in an array.
+
+Example:
+
+Array.sum([10000,15000]) → 25000
+
+🧩 What does {out:{replace:"salaryTotals"}} mean?
+
+Specifies the output collection.
+
+The result of MapReduce will be stored in a collection named salaryTotals.
+
+If the collection already exists, it will replace it.
+
+🧾 Viva Questions & Answers
+Question	                                                        Answer
+What is MapReduce in MongoDB?                          	It’s a framework to process and summarize data using Map and Reduce functions.
+What does emit() do?	                        Emits key-value pairs to be processed in the Reduce phase.
+What is Array.sum() used for?	                      To sum up numeric values in the Reduce function.
+What are the phases in MapReduce?	                        Map Phase and Reduce Phase.
+What does {out:{replace:"salaryTotals"}} mean?	                                It stores the MapReduce output in a new collection called salaryTotals.
+What is the output of this program?                                	{ "_id": "total", "value": 25000 } → total salary = 25000.
+Difference between MapReduce and Aggregation?	                    Aggregation uses pipeline operators; MapReduce uses custom JS functions for flexibility.

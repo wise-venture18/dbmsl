@@ -1,0 +1,238 @@
+12) Teachers/Department/Students
+
+#############12.Consider following structure for Mongodb collection and write a query for following
+requirements in Mongodb
+Teachers (Tname,dno,Experience,Salary,Date_of_Joining)
+Department (Dno,Dname)
+Students(Sname,Roll_No,Class)
+1. Write a query to create above collection insert some sample documents.
+2. Find the information about all teachers of Dno=2 and having salary greater than or equal to
+10,000/-
+3. Find the student information having Roll_no=2 or Sname='xyz'
+4. Update student name whose Roll_No=5
+5. Delete all student whose Class is 'FE' ###############
+--------------------------------------------------------------------------------------------------------------------------
+use school;
+db.createCollection("Teachers");
+db.Teachers.insertMany([
+ {Tname:"A", dno:1, Experience:5, Salary:12000, Date_of_Joining:new Date("2020-06-01")},
+ {Tname:"B", dno:2, Experience:8, Salary:18000, Date_of_Joining:new Date("2019-01-10")}
+]);
+db.Department.insertMany([{Dno:1,Dname:"CS"},{Dno:2,Dname:"IT"}]);
+db.Students.insertMany([{Sname:"xyz",Roll_No:2,Class:"SE"},{Sname:"p",Roll_No:5,Class:"FE"}]);
+
+db.Teachers.find({dno:2, Salary:{$gte:10000}});
+db.Students.find({$or:[{Roll_No:2},{Sname:"xyz"}]});
+db.Students.updateOne({Roll_No:5},{$set:{Sname:"updated"}});
+db.Students.deleteMany({Class:"FE"});
+db.Students.createIndex({Sname:1});
+
+
+
+
+-------------------------------------------------------------------------------------
+
+🎓 PS12 — MongoDB Practical (Teachers, Department, Students)
+💡 Aim:
+
+Perform CRUD operations and use logical, comparison, and indexing concepts on multiple collections.
+
+✅ Step 1 — Insert Teachers’ records
+db.Teachers.insertMany([
+  {Tname:"A", dno:1, Experience:5, Salary:12000, Date_of_Joining:new Date("2020-06-01")},
+  {Tname:"B", dno:2, Experience:8, Salary:18000, Date_of_Joining:new Date("2019-01-10")}
+]);
+
+🔍 Explanation:
+
+Creates a collection Teachers.
+
+Inserts 2 documents.
+
+Each document has:
+
+Tname: Teacher name
+
+dno: Department number
+
+Experience: in years
+
+Salary: salary amount
+
+Date_of_Joining: a date field (using new Date())
+
+✅ Output:
+
+{ acknowledged: true, insertedIds: { '0': ObjectId(...), '1': ObjectId(...) } }
+
+
+✅ Resulting Data:
+
+[
+  {Tname:"A", dno:1, Experience:5, Salary:12000, Date_of_Joining: ISODate("2020-06-01")},
+  {Tname:"B", dno:2, Experience:8, Salary:18000, Date_of_Joining: ISODate("2019-01-10")}
+]
+
+✅ Step 2 — Insert Department records
+db.Department.insertMany([
+  {Dno:1, Dname:"CS"},
+  {Dno:2, Dname:"IT"}
+]);
+
+🔍 Explanation:
+
+Creates Department collection.
+
+Inserts department details (like foreign key in SQL terms).
+
+Each department has a Dno (number) and Dname (name).
+
+✅ Output:
+
+{ acknowledged: true, insertedIds: { '0': ObjectId(...), '1': ObjectId(...) } }
+
+
+✅ Resulting Data:
+
+[
+  {Dno:1, Dname:"CS"},
+  {Dno:2, Dname:"IT"}
+]
+
+✅ Step 3 — Insert Students’ records
+db.Students.insertMany([
+  {Sname:"xyz", Roll_No:2, Class:"SE"},
+  {Sname:"p", Roll_No:5, Class:"FE"}
+]);
+
+🔍 Explanation:
+
+Creates Students collection.
+
+Inserts 2 student documents with name, roll number, and class.
+
+✅ Output:
+
+{ acknowledged: true, insertedIds: { '0': ObjectId(...), '1': ObjectId(...) } }
+
+
+✅ Resulting Data:
+
+[
+  {Sname:"xyz", Roll_No:2, Class:"SE"},
+  {Sname:"p", Roll_No:5, Class:"FE"}
+]
+
+✅ Step 4 — Query Teachers with dno=2 and Salary >= 10000
+db.Teachers.find({dno:2, Salary:{$gte:10000}});
+
+🔍 Explanation:
+
+dno:2 → filters teachers in Department 2.
+
+$gte:10000 → selects teachers whose salary ≥ 10000.
+
+$gte means greater than or equal to.
+
+✅ Output:
+
+[
+  {Tname:"B", dno:2, Experience:8, Salary:18000, Date_of_Joining: ISODate("2019-01-10")}
+]
+
+
+✅ Only Teacher B matches both conditions.
+
+✅ Step 5 — Query Students with OR condition
+db.Students.find({$or:[{Roll_No:2},{Sname:"xyz"}]});
+
+🔍 Explanation:
+
+$or is a logical operator.
+
+It returns documents where either Roll_No=2 OR Sname="xyz".
+
+Both conditions point to the same document here.
+
+✅ Output:
+
+[
+  {Sname:"xyz", Roll_No:2, Class:"SE"}
+]
+
+✅ Step 6 — Update one Student’s name
+db.Students.updateOne({Roll_No:5},{$set:{Sname:"updated"}});
+
+🔍 Explanation:
+
+updateOne() → modifies only the first document that matches.
+
+{Roll_No:5} → condition to find student.
+
+$set:{Sname:"updated"} → changes Sname to "updated".
+
+✅ Output:
+
+{ acknowledged: true, matchedCount: 1, modifiedCount: 1 }
+
+
+✅ Now if you check:
+
+db.Students.find();
+
+
+Output:
+
+[
+  {Sname:"xyz", Roll_No:2, Class:"SE"},
+  {Sname:"updated", Roll_No:5, Class:"FE"}
+]
+
+✅ Step 7 — Delete students whose Class = "FE"
+db.Students.deleteMany({Class:"FE"});
+
+🔍 Explanation:
+
+deleteMany() removes all documents matching the condition.
+
+Condition → Class = "FE".
+
+✅ Output:
+
+{ acknowledged: true, deletedCount: 1 }
+
+
+✅ Remaining Data:
+
+[
+  {Sname:"xyz", Roll_No:2, Class:"SE"}
+]
+
+✅ Step 8 — Create Index on Student Name
+db.Students.createIndex({Sname:1});
+
+🔍 Explanation:
+
+Creates an index on Sname field for faster searches.
+
+1 means ascending order.
+
+Helps speed up future find() queries based on name.
+
+✅ Output:
+
+{ "numIndexesBefore" : 1, "numIndexesAfter" : 2, "ok" : 1 }
+
+
+✅ Means index successfully created.
+
+
+			                                        🧾 Viva Q&A
+Question						                                                                                 Answer
+What is $gte?	 			                                                             	Comparison operator for “greater than or equal to”.
+What does $or do?      			            	                                         Combines multiple conditions — true if any condition matches.
+What is $set used for?				                                                       To update or change a field value in a document.
+Difference between updateOne() and updateMany()?	                             updateOne updates only the first matching record; updateMany updates all matching records.
+What is the use of createIndex()?			                                          To make searches faster on that particular field.
+What does deleteMany() do?				                                                 Deletes all documents matching the condition.
+What data type is new Date("2020-06-01")?		It’s an ISODate object in MongoDB representing a date.

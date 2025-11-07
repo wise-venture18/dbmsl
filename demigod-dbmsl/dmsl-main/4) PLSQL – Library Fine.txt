@@ -1,0 +1,44 @@
+4) PL/SQL – Library Fine
+
+Steps:
+
+Create Borrower & Fine (if needed).
+
+Run block; show SELECT * FROM Fine.
+
+
+
+
+
+
+-- CREATE TABLE Borrower(Rollin NUMBER, Name VARCHAR2(40), DateofIssue DATE, NameofBook VARCHAR2(60), Status CHAR(1));
+-- CREATE TABLE Fine(Roll_no NUMBER, Date DATE, Amt NUMBER);
+
+SET SERVEROUTPUT ON;
+DECLARE
+  v_roll Borrower.Rollin%TYPE := &ROLL_IN;
+  v_book Borrower.NameofBook%TYPE := '&BOOK';
+  v_doi  DATE; v_days NUMBER; v_amt NUMBER := 0;
+BEGIN
+  SELECT DateofIssue INTO v_doi
+  FROM Borrower
+  WHERE Rollin=v_roll AND NameofBook=v_book AND Status='I';
+
+  v_days := TRUNC(SYSDATE - v_doi);
+
+  IF v_days > 30 THEN v_amt := 50 * v_days;
+  ELSIF v_days BETWEEN 15 AND 30 THEN v_amt := 5 * v_days;
+  ELSE v_amt := 0; END IF;
+
+  UPDATE Borrower SET Status='R'
+  WHERE Rollin=v_roll AND NameofBook=v_book;
+
+  IF v_amt>0 THEN
+    INSERT INTO Fine(Roll_no,Date,Amt) VALUES(v_roll,SYSDATE,v_amt);
+  END IF;
+  DBMS_OUTPUT.PUT_LINE('Fine = '||v_amt);
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN DBMS_OUTPUT.PUT_LINE('No issued record found.');
+END;
+/
+SELECT * FROM Fine WHERE Roll_no=&ROLL_IN;

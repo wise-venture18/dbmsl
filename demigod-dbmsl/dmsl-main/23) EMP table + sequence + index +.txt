@@ -1,0 +1,160 @@
+23) EMP table + sequence + index + view
+
+####23.Create a table emp with following fields and constraints
+Eno –(Constraint:- primary key and apply sequence starts with 101) ,Ename –(Constraint :-
+not null)
+Address ––(Constraint :-default ‘Nashik’) ,Joindate,
+After table creation add field - Post in the emp table.
+Insert some data in emp table.Create Index on Ename field of employee table.
+Create View on employee table to show only Ename and Salary. ######################
+---------------------------------------------------------------------------------------------------------
+-- Create & use a fresh DB
+CREATE DATABASE IF NOT EXISTS EmpDB23;
+USE EmpDB23;
+
+-- Clean slate
+DROP TABLE IF EXISTS emp;
+
+-- Create table emp
+-- Eno: PK with auto-increment starting at 101 (sequence requirement)
+-- Ename: NOT NULL
+-- Address: default 'Nashik'
+-- Joindate: date of joining
+-- Salary: added so the view (Ename, Salary) makes sense
+CREATE TABLE emp (
+  Eno      INT PRIMARY KEY AUTO_INCREMENT,
+  Ename    VARCHAR(60) NOT NULL,
+  Address  VARCHAR(80) DEFAULT 'Nashik',
+  Joindate DATE,
+  Salary   DECIMAL(10,2)
+) AUTO_INCREMENT=101;
+
+-- After creation add field Post
+ALTER TABLE emp ADD COLUMN Post VARCHAR(40);
+
+-- Insert some sample rows
+INSERT INTO emp (Ename, Address, Joindate, Salary, Post)
+VALUES
+  ('Neha',   DEFAULT,   '2023-06-01', 22000, 'Developer'),
+  ('Sachin', 'Pune',     '2022-04-15', 30000, 'Manager'),
+  ('Amit',   DEFAULT,   '2021-01-10', 18000, 'Tester');
+
+-- Create Index on Ename
+CREATE INDEX idx_emp_ename ON emp(Ename);
+
+-- Create View showing only Ename and Salary
+CREATE OR REPLACE VIEW Emp_Name_Salary AS
+SELECT Ename, Salary
+FROM emp;
+
+-- Quick checks (optional for viva/demo)
+SELECT * FROM emp;               -- see data with Eno starting at 101
+SHOW INDEX FROM emp;             -- see idx_emp_ename
+SELECT * FROM Emp_Name_Salary;   -- see view output
+
+
+
+
+
+
+
+
+
+PS23 – EMP table + Sequence + Index + View
+✅ Aim:
+
+To create a table emp with constraints, add a field later, use an auto-increment sequence, create an index, and define a view to display only selected columns.
+
+🧱 Code Explanation (Line-by-Line)
+1️⃣ Create & Use Database
+CREATE DATABASE IF NOT EXISTS EmpDB23;
+USE EmpDB23;
+
+
+✔ Creates a new database named EmpDB23 (if not already present).
+✔ USE switches the session to that database.
+
+2️⃣ Drop existing table (clean start)
+DROP TABLE IF EXISTS emp;
+
+
+✔ Deletes any existing emp table to avoid duplicate creation errors.
+
+3️⃣ Create table with constraints
+CREATE TABLE emp (
+  Eno      INT PRIMARY KEY AUTO_INCREMENT,
+  Ename    VARCHAR(60) NOT NULL,
+  Address  VARCHAR(80) DEFAULT 'Nashik',
+  Joindate DATE,
+  Salary   DECIMAL(10,2)
+) AUTO_INCREMENT=101;
+
+Field	Description	Constraint
+Eno	Employee Number	Primary Key + Auto Increment (starts at 101 → acts like a sequence)
+Ename	Employee Name	NOT NULL (must have a name)
+Address	Employee Address	Default = 'Nashik' if no value given
+Joindate	Date of joining	No constraint
+Salary	Employee Salary	No constraint (added for view)
+
+✅ The AUTO_INCREMENT=101 mimics an Oracle SEQUENCE starting from 101.
+
+4️⃣ Add new field after creation
+ALTER TABLE emp ADD COLUMN Post VARCHAR(40);
+
+
+✔ Adds an extra column Post (e.g., Manager, Developer) after the table is already created.
+✔ Demonstrates ALTER TABLE use.
+
+5️⃣ Insert sample records
+INSERT INTO emp (Ename, Address, Joindate, Salary, Post)
+VALUES
+  ('Neha',   DEFAULT,   '2023-06-01', 22000, 'Developer'),
+  ('Sachin', 'Pune',     '2022-04-15', 30000, 'Manager'),
+  ('Amit',   DEFAULT,   '2021-01-10', 18000, 'Tester');
+
+
+✔ Inserts 3 rows.
+✔ DEFAULT keyword automatically fills Address = 'Nashik' wherever not specified.
+✔ AUTO_INCREMENT automatically assigns Eno = 101, 102, 103.
+
+6️⃣ Create Index
+CREATE INDEX idx_emp_ename ON emp(Ename);
+
+
+✔ Creates an index idx_emp_ename on the Ename column.
+✔ Speeds up searching or sorting by employee name.
+✔ In MySQL, you can check it via:
+
+SHOW INDEX FROM emp;
+
+7️⃣ Create View
+CREATE OR REPLACE VIEW Emp_Name_Salary AS
+SELECT Ename, Salary
+FROM emp;
+
+
+✔ Creates a virtual table (view) called Emp_Name_Salary.
+✔ Displays only Ename and Salary — hiding other columns (useful for restricted access).
+✔ Can be queried like a normal table:
+
+SELECT * FROM Emp_Name_Salary;
+
+🧠 Concept Recap
+Concept	Description
+Primary Key	Uniquely identifies each record (Eno).
+AUTO_INCREMENT	Auto-generates ID numbers — acts like a sequence.
+NOT NULL	Ensures field can’t be empty (Ename).
+DEFAULT	Automatically assigns value when not provided (Address='Nashik').
+ALTER TABLE	Adds new columns after table creation.
+INDEX	Increases query performance for searches or sorting.
+VIEW	Virtual table that stores a query result for easy access.
+
+
+✅ Viva-Ready Summary
+
+Question	Short Answer
+What does AUTO_INCREMENT=101 do?	                      Starts numbering from 101 (like a sequence).
+Why use DEFAULT 'Nashik'?	                        Assigns default city when not entered.
+What is CREATE INDEX used for?	                            Speeds up searching/sorting operations.
+What is a VIEW?	                                  A virtual table derived from a SELECT query.
+What is ALTER TABLE used for?	                      To modify table structure after creation.

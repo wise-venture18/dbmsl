@@ -1,0 +1,231 @@
+13) Dept/teacher – aggregates + index
+############13.Perform aggregation and Indexing using mongodb on below database
+1. Create a database department
+2. Create a collection as teacher with fields as name , department ,experience and salary
+3. Display the department wise average salary.
+4. Display the no. Of employees working in each department.
+5. Display the department wise minimum salary.
+6. Apply index and drop index################
+
+-----------------------------------------------------------------------------------------------
+
+use department;
+db.teacher.insertMany([
+ {name:"t1",department:"CS",experience:3,salary:15000},
+ {name:"t2",department:"CS",experience:5,salary:25000},
+ {name:"t3",department:"IT",experience:4,salary:20000}
+]);
+db.teacher.aggregate([{$group:{_id:"$department", avgSal:{$avg:"$salary"}}}]);
+db.teacher.aggregate([{$group:{_id:"$department", cnt:{$sum:1}}}]);
+db.teacher.aggregate([{$group:{_id:"$department", minSal:{$min:"$salary"}}}]);
+db.teacher.createIndex({department:1}); db.teacher.dropIndex({department:1});
+
+
+----------------------------------------------------------------------------------------
+🧱 PS13 – MongoDB (Department / Teacher – Aggregates + Index)
+💡 Aim:
+
+Perform aggregate operations (average, count, min) and demonstrate index creation and deletion on a teacher collection.
+
+✅ Step-by-Step Code with Explanation
+🧩 Step 1 — Create / use database
+use department;
+
+
+👉 Switches to or creates a database named department.
+
+🧩 Step 2 — Insert teacher data
+db.teacher.insertMany([
+  {name:"t1", department:"CS", experience:3, salary:15000},
+  {name:"t2", department:"CS", experience:5, salary:25000},
+  {name:"t3", department:"IT", experience:4, salary:20000}
+]);
+
+🔍 Explanation:
+
+Creates a collection named teacher and inserts 3 documents.
+Each document contains:
+| Field | Meaning |
+|:--|:--|
+| name | Teacher’s name |
+| department | Department name (CS or IT) |
+| experience | Years of experience |
+| salary | Salary in rupees |
+
+✅ Resulting Data:
+
+[
+  {name:"t1", department:"CS", experience:3, salary:15000},
+  {name:"t2", department:"CS", experience:5, salary:25000},
+  {name:"t3", department:"IT", experience:4, salary:20000}
+]
+
+⚙️ AGGREGATION
+
+Aggregation means performing group-wise calculations (like SQL’s GROUP BY) using MongoDB’s aggregate() pipeline.
+
+🧩 1️⃣ Find average salary department-wise
+db.teacher.aggregate([
+  { $group: { _id: "$department", avgSal: { $avg: "$salary" } } }
+]);
+
+🔍 Explanation:
+
+$group: groups documents by a specific field (department).
+
+_id:"$department" → group key (like GROUP BY department in SQL).
+
+avgSal:{$avg:"$salary"} → computes average salary per department.
+
+✅ Output:
+
+[
+  { "_id": "CS", "avgSal": 20000 },
+  { "_id": "IT", "avgSal": 20000 }
+]
+
+
+✅ Both CS and IT departments have an average salary of 20000.
+
+🧩 2️⃣ Count number of teachers in each department
+db.teacher.aggregate([
+  { $group: { _id: "$department", cnt: { $sum: 1 } } }
+]);
+
+🔍 Explanation:
+
+$sum:1 → increments count by 1 for each document.
+
+Gives the total number of teachers in each department.
+
+✅ Output:
+
+[
+  { "_id": "CS", "cnt": 2 },
+  { "_id": "IT", "cnt": 1 }
+]
+
+🧩 3️⃣ Find minimum salary department-wise
+db.teacher.aggregate([
+  { $group: { _id: "$department", minSal: { $min: "$salary" } } }
+]);
+
+🔍 Explanation:
+
+$min → finds the smallest value in each group (here, minimum salary).
+
+✅ Output:
+
+[
+  { "_id": "CS", "minSal": 15000 },
+  { "_id": "IT", "minSal": 20000 }
+]
+
+⚙️ INDEXING
+
+Indexes improve the speed of data retrieval operations on a collection.
+They are like the index in a book — instead of scanning all pages, MongoDB jumps directly to the required record.
+
+🧩 4️⃣ Create an index on department
+db.teacher.createIndex({ department: 1 });
+
+🔍 Explanation:
+
+createIndex({ department: 1 }) → creates an ascending index on the department field.
+
+This helps MongoDB find teachers by department faster during queries.
+
+1 = ascending order, -1 = descending order.
+
+✅ Output:
+
+{
+  "createdCollectionAutomatically" : false,
+  "numIndexesBefore" : 1,
+  "numIndexesAfter" : 2,
+  "ok" : 1
+}
+
+
+✅ Index successfully created.
+
+🧩 5️⃣ Drop (remove) the index
+db.teacher.dropIndex({ department: 1 });
+
+🔍 Explanation:
+
+Removes the previously created index.
+
+Used when an index is no longer required or to free memory.
+
+✅ Output:
+
+{ "nIndexesWas": 2, "ok": 1 }
+
+🧠 Detailed Concepts
+🧩 1. Aggregation
+
+Definition:
+Aggregation is a process of combining multiple documents and performing operations like sum, average, count, min, max etc. on grouped data.
+
+Analogy:
+Like SQL query:
+
+SELECT department, AVG(salary)
+FROM teacher
+GROUP BY department;
+
+
+Main Operators:
+
+Operator	Meaning
+$group	Groups data by a specific field
+$avg	Finds average
+$sum	Adds values or counts records
+$min	Finds minimum value
+$max	Finds maximum value
+🧩 2. Indexing
+
+Definition:
+An index is a special data structure that improves the speed of query operations in MongoDB.
+
+Example analogy:
+Without an index — searching a name in a full book (page by page).
+With an index — directly jump to the page number from the index section.
+
+Command:
+
+db.collection.createIndex({ fieldname: 1 });
+
+
+Types of indexes:
+
+Type	Description
+Ascending Index (1)	Sorts data in ascending order
+Descending Index (-1)	Sorts data in descending order
+Compound Index	Index on multiple fields
+Unique Index	Ensures field values are unique
+
+Benefits:
+
+Fast searching and sorting
+
+Efficient query execution
+
+Better performance for large datasets
+
+Drawbacks:
+
+Takes extra storage
+
+Slight overhead for insert/update operations
+
+🧾 Viva Questions & Answers
+Question	                                                                                        Answer
+What is Aggregation in MongoDB?	                                   It’s a process to group documents and perform calculations like sum, avg, min, max.
+What is the purpose of $group?                                       	Groups documents by a specified key (like department).
+What does $avg do?	                                              Calculates the average value of a numeric field.
+What does $sum:1 mean?                                             	Counts the number of documents in each group.
+What is Indexing in MongoDB?	                                         It is a structure that speeds up searching and sorting in collections.
+Syntax to create index?	                                                 db.collection.createIndex({ field: 1 })
+Why do we drop index?	                                                 To remove unnecessary indexes and free memory.

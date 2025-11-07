@@ -1,0 +1,187 @@
+1) Traffic DB – Person/Car/Accident/Owns/Participated
+
+-- ============================================
+-- PS24 : Person, Car, Accident, Owns, Participated
+-- MySQL Compatible Script
+-- ============================================
+
+-- Step 1: Create and use database
+CREATE DATABASE IF NOT EXISTS PS24DB;
+USE PS24DB;
+
+-- ============================================
+-- Step 3: Create Tables
+-- ============================================
+
+CREATE TABLE Person (
+  driver_id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(60) NOT NULL,
+  address VARCHAR(100)
+) AUTO_INCREMENT = 201;
+
+CREATE TABLE Car (
+  license VARCHAR(20) PRIMARY KEY,
+  model VARCHAR(40),
+  year INT
+);
+
+CREATE TABLE Accident (
+  report_no INT PRIMARY KEY AUTO_INCREMENT,
+  date_acc DATE,
+  location VARCHAR(60)
+) AUTO_INCREMENT = 6001;
+
+CREATE TABLE Owns (
+  driver_id INT,
+  license VARCHAR(20),
+  FOREIGN KEY (driver_id) REFERENCES Person(driver_id),
+  FOREIGN KEY (license) REFERENCES Car(license)
+);
+
+CREATE TABLE Participated (
+  driver_id INT,
+  model VARCHAR(40),
+  report_no INT,
+  damage_amount DECIMAL(10,2),
+  FOREIGN KEY (driver_id) REFERENCES Person(driver_id),
+  FOREIGN KEY (report_no) REFERENCES Accident(report_no)
+);
+
+-- ============================================
+-- Step 4: Insert Sample Data
+-- ============================================
+
+INSERT INTO Person (name, address) VALUES
+('Neha', 'Pune'),
+('Ravi', 'Mumbai'),
+('Amit', 'Nashik'),
+('Sonal', 'Delhi');
+
+INSERT INTO Car VALUES
+('MH12AA1111', 'Swift', 2018),
+('MH12BB2222', 'Creta', 2021),
+('MH14CC3333', 'i20', 2020),
+('MH14DD4444', 'Venue', 2022);
+
+INSERT INTO Accident (date_acc, location) VALUES
+('2025-01-10', 'Pune'),
+('2025-03-05', 'Mumbai'),
+('2024-11-20', 'Delhi');
+
+INSERT INTO Owns VALUES
+(201, 'MH12AA1111'),
+(202, 'MH12BB2222'),
+(203, 'MH14CC3333'),
+(204, 'MH14DD4444');
+
+INSERT INTO Participated VALUES
+(201, 'Swift', 6001, 15000),
+(202, 'Creta', 6002, 35000),
+(203, 'i20', 6003, 18000);
+
+-- ============================================
+-- Step 5: Create Views
+-- ============================================
+
+-- (2) View showing each driver’s name and car model
+CREATE OR REPLACE VIEW Driver_Car_View AS
+SELECT p.name AS driver_name, c.model
+FROM Person p
+JOIN Owns o ON o.driver_id = p.driver_id
+JOIN Car c ON c.license = o.license;
+
+-- (3) Display from view
+SELECT * FROM Driver_Car_View;
+
+-- (4) Modify view to include year
+CREATE OR REPLACE VIEW Driver_Car_View AS
+SELECT p.name AS driver_name, c.model, c.year
+FROM Person p
+JOIN Owns o ON o.driver_id = p.driver_id
+JOIN Car c ON c.license = o.license;
+
+SELECT * FROM Driver_Car_View;
+
+-- ============================================
+-- Step 6: Indexes & Aggregate Views
+-- ============================================
+
+-- (6) Composite index on model and year
+CREATE INDEX idx_car_model_year ON Car(model, year);
+
+-- (6a) View: High damage drivers
+CREATE OR REPLACE VIEW High_Damage_Drivers AS
+SELECT p.name AS driver_name, pa.damage_amount
+FROM Person p
+JOIN Participated pa ON p.driver_id = pa.driver_id
+WHERE pa.damage_amount > 20000;
+
+SELECT * FROM High_Damage_Drivers;
+
+-- ============================================
+-- Step 7: Auto increment acts as sequence
+-- (7-8) Insert new record (auto driver_id=205)
+INSERT INTO Person (name, address) VALUES ('Vikas', 'Chennai');
+
+-- ============================================
+-- Step 9-10: Create & Drop index on Person(name)
+CREATE INDEX idx_person_name ON Person(name);
+DROP INDEX idx_person_name ON Person;
+
+-- ============================================
+-- Step 11: View of accidents in 2025
+CREATE OR REPLACE VIEW Recent_Accidents AS
+SELECT * FROM Accident
+WHERE YEAR(date_acc) = 2025;
+
+SELECT * FROM Recent_Accidents;
+
+-- (12) Drop the view
+DROP VIEW Recent_Accidents;
+
+-- ============================================
+-- Step 13: Simulate synonym using view
+CREATE OR REPLACE VIEW acc_info AS SELECT * FROM Accident;
+
+-- (14) Insert via view (allowed if simple)
+INSERT INTO Accident (date_acc, location) VALUES ('2025-05-15', 'Nagpur');
+
+-- ============================================
+-- Step 15: Unique index on Car(license)
+CREATE UNIQUE INDEX uniq_license ON Car(license);
+
+-- (16) View: drivers with cars manufactured after 2019
+CREATE OR REPLACE VIEW New_Car_Drivers AS
+SELECT p.name, c.model, c.year
+FROM Person p
+JOIN Owns o ON p.driver_id = o.driver_id
+JOIN Car c ON o.license = c.license
+WHERE c.year > 2019;
+
+SELECT * FROM New_Car_Drivers;
+
+-- (17) Auto-generated report_no for new accident
+INSERT INTO Accident (date_acc, location) VALUES ('2025-06-20', 'Bangalore');
+
+-- ============================================
+-- Step 18: "Synonym" for Owns simulated via view
+CREATE OR REPLACE VIEW Owns_View AS
+SELECT p.name AS driver_name, c.model
+FROM Person p
+JOIN Owns o ON p.driver_id = o.driver_id
+JOIN Car c ON o.license = c.license;
+
+SELECT * FROM Owns_View;
+
+-- ============================================
+-- Step 19: Index for query performance (damage_amount)
+CREATE INDEX idx_damage_amount ON Participated(damage_amount);
+
+-- Done
+SELECT '✅ PS24 Script Executed Successfully' AS Status;
+
+
+CREATE SYNONYM owns_info FOR Owns;
+-- Run check:
+SELECT * FROM owns_info;
+

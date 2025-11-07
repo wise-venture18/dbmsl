@@ -1,0 +1,163 @@
+21) Employee/Works/Company/Manages 
+
+############21.Employee(employee_name,street,city)
+Works(employee_name,company_name,salary)
+Company(company_name,city)
+Manages(employee_name,manager_name)
+1. Find the names of employees who work for First Bank Coorporation.
+2. Find the names and cities of residence of all employees who work for First Bank
+Coorporation
+3. Find the names, street addresses, and cities of residence of all employees who work for First
+Bank Coorporation and earn more than $10000.
+4.Find all employees in the database who lives in the same cities as tha companies for which
+they work.
+5.Find all employees in the database who lives in the same cities and on the same streets as do
+their manager.
+6.Find all employees in the database who do not work for First Bank Coorporation
+7.Give all employees of First Bank Coorporation” a 10% raise
+8.Delete all tuples in the “Works” relation for employees of “Small Bank Coorporation”############################
+
+=========================21========================================================================
+-- Create and use the database
+CREATE DATABASE IF NOT EXISTS BankDB;
+USE BankDB;
+
+-- Drop existing tables if they exist
+DROP TABLE IF EXISTS Manages;
+DROP TABLE IF EXISTS Works;
+DROP TABLE IF EXISTS Company;
+DROP TABLE IF EXISTS Employee;
+
+-- Create Employee table
+CREATE TABLE Employee (
+  employee_name VARCHAR(50) PRIMARY KEY,
+  street VARCHAR(50),
+  city VARCHAR(30)
+);
+
+-- Create Company table
+CREATE TABLE Company (
+  company_name VARCHAR(50) PRIMARY KEY,
+  city VARCHAR(30)
+);
+
+-- Create Works table
+CREATE TABLE Works (
+  employee_name VARCHAR(50),
+  company_name VARCHAR(50),
+  salary DECIMAL(10,2),
+  FOREIGN KEY (employee_name) REFERENCES Employee(employee_name),
+  FOREIGN KEY (company_name) REFERENCES Company(company_name)
+);
+
+-- Create Manages table
+CREATE TABLE Manages (
+  employee_name VARCHAR(50),
+  manager_name VARCHAR(50)
+);
+
+-- Insert sample data
+INSERT INTO Employee VALUES
+('Neha',  'MG Road',   'Pune'),
+('Ravi',  'FC Road',   'Pune'),
+('Priya', 'Hill Rd',   'Mumbai'),
+('Amit',  'Linking Rd','Mumbai'),
+('Sonal', 'Main St',   'Delhi'),
+('Vikas', 'JM Road',   'Pune'),
+('Reena', 'M G Road',  'Delhi');
+
+INSERT INTO Company VALUES
+('First Bank Corporation', 'Pune'),
+('Small Bank Corporation', 'Delhi'),
+('National Bank', 'Mumbai'),
+('IT Hub Ltd', 'Pune');
+
+INSERT INTO Works VALUES
+('Neha',  'First Bank Corporation', 12000),
+('Ravi',  'National Bank', 9000),
+('Priya', 'Small Bank Corporation', 15000),
+('Amit',  'First Bank Corporation', 11000),
+('Sonal', 'IT Hub Ltd', 9500),
+('Vikas', 'Small Bank Corporation', 13000);
+
+INSERT INTO Manages VALUES
+('Neha', 'Priya'),
+('Ravi', 'Amit'),
+('Sonal', 'Vikas'),
+('Amit', 'Priya'),
+('Vikas', 'Reena');
+
+-- -------------------------------------------------------------
+-- 1️⃣ Find names of employees who work for First Bank Corporation
+-- -------------------------------------------------------------
+SELECT employee_name
+FROM Works
+WHERE company_name = 'First Bank Corporation';
+
+-- -------------------------------------------------------------
+-- 2️⃣ Find names and cities of employees who work for First Bank Corporation
+-- -------------------------------------------------------------
+SELECT e.employee_name, e.city
+FROM Employee e
+JOIN Works w ON e.employee_name = w.employee_name
+WHERE w.company_name = 'First Bank Corporation';
+
+-- -------------------------------------------------------------
+-- 3️⃣ Find names, streets, cities of employees who work for First Bank and earn > 10000
+-- -------------------------------------------------------------
+SELECT e.employee_name, e.street, e.city
+FROM Employee e
+JOIN Works w ON e.employee_name = w.employee_name
+WHERE w.company_name = 'First Bank Corporation'
+  AND w.salary > 10000;
+
+-- -------------------------------------------------------------
+-- 4️⃣ Find employees who live in the same city as the company they work for
+-- -------------------------------------------------------------
+SELECT e.employee_name, e.city, w.company_name
+FROM Employee e
+JOIN Works w ON e.employee_name = w.employee_name
+JOIN Company c ON w.company_name = c.company_name
+WHERE e.city = c.city;
+
+-- -------------------------------------------------------------
+-- 5️⃣ Find employees who live in the same city and street as their manager
+-- -------------------------------------------------------------
+SELECT e.employee_name, e.street, e.city
+FROM Employee e
+JOIN Manages m ON e.employee_name = m.employee_name
+JOIN Employee mgr ON m.manager_name = mgr.employee_name
+WHERE e.city = mgr.city AND e.street = mgr.street;
+
+-- -------------------------------------------------------------
+-- 6️⃣ Find all employees who do NOT work for First Bank Corporation
+-- -------------------------------------------------------------
+SELECT e.employee_name
+FROM Employee e
+WHERE e.employee_name NOT IN (
+  SELECT employee_name
+  FROM Works
+  WHERE company_name = 'First Bank Corporation'
+);
+
+-- -------------------------------------------------------------
+-- 7️⃣ Give all employees of First Bank Corporation a 10% raise
+-- -------------------------------------------------------------
+UPDATE Works
+SET salary = salary * 1.10
+WHERE company_name = 'First Bank Corporation';
+
+-- View updated salaries
+SELECT * FROM Works WHERE company_name = 'First Bank Corporation';
+
+-- -------------------------------------------------------------
+-- 8️⃣ Delete all tuples in Works for employees of Small Bank Corporation
+-- -------------------------------------------------------------
+DELETE FROM Works
+WHERE company_name = 'Small Bank Corporation';
+
+-- View Works table after deletion
+SELECT * FROM Works;
+
+
+

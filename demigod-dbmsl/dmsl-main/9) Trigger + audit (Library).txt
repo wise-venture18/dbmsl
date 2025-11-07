@@ -1,0 +1,27 @@
+9) Trigger + audit (Library)
+
+Steps: create audit table, trigger; do an UPDATE/DELETE; show audit rows.
+
+
+
+
+-- CREATE TABLE Library(id NUMBER PRIMARY KEY, title VARCHAR2(60), author VARCHAR2(40));
+CREATE TABLE Library_Audit(op VARCHAR2(10), old_id NUMBER, old_vals VARCHAR2(200), changed_on DATE);
+
+CREATE OR REPLACE TRIGGER trg_lib_audit
+AFTER UPDATE OR DELETE ON Library
+FOR EACH ROW
+BEGIN
+  IF UPDATING THEN
+    INSERT INTO Library_Audit(op,old_id,old_vals,changed_on)
+    VALUES('UPDATE', :OLD.id, :OLD.title||'|'||:OLD.author, SYSDATE);
+  ELSIF DELETING THEN
+    INSERT INTO Library_Audit(op,old_id,old_vals,changed_on)
+    VALUES('DELETE', :OLD.id, :OLD.title||'|'||:OLD.author, SYSDATE);
+  END IF;
+END;
+/
+-- Run check
+-- UPDATE Library SET title=title WHERE id=1;
+-- DELETE FROM Library WHERE id=1;
+SELECT * FROM Library_Audit;

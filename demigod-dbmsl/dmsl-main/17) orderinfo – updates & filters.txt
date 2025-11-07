@@ -1,0 +1,219 @@
+17) orderinfo – updates & filters
+##################17.Collection “orderinfo“ which contains the documents given as below(Perform on Mongo
+Terminal)
+{
+cust_id:123
+cust_name:”abc”,
+status:”A”,
+price:250
+}
+i. Display the name of the customer having the price between 250 and 450
+ii. Increment the price by 10 for cust_id: 123 and decrement the price by 5 for cust_id: 124
+iii. Remove any one of the field from the orderinfo collection.
+iv. Find the name of the customer whose status is either A or price is 250 or both. #################################
+
+
+-----------------------------------------------------------------------------------------------
+use practical_db
+db.orderinfo.drop()
+db.orderinfo.insertMany([
+  { cust_id: 123, cust_name: "abc", status: "A", price: 250 },
+  { cust_id: 124, cust_name: "xyz", status: "B", price: 300 },
+  { cust_id: 125, cust_name: "pqr", status: "A", price: 420 }
+])
+
+// i) Name of customers with price between 250 and 450 (inclusive)
+db.orderinfo.find(
+  { price: { $gte: 250, $lte: 450 } },
+  { _id: 0, cust_name: 1 }
+)
+
+// ii) Increment price by 10 for id 123; decrement by 5 for id 124
+db.orderinfo.updateOne({ cust_id: 123 }, { $inc: { price: 10 } })
+db.orderinfo.updateOne({ cust_id: 124 }, { $inc: { price: -5 } })
+
+// iii) Remove any one field (example: remove 'status' from all docs)
+db.orderinfo.updateMany({}, { $unset: { status: "" } })
+// (to remove from only one doc: db.orderinfo.updateOne({ cust_id: 123 }, { $unset: { status: "" } }))
+
+// iv) Name of customer where status is 'A' OR price is 250 (or both)
+db.orderinfo.find(
+  { $or: [ { status: "A" }, { price: 250 } ] },
+  { _id: 0, cust_name: 1 }
+)
+
+-----------------------------------------------------------------------------------------------------------------
+
+📦 PS17 – MongoDB (orderinfo – Updates & Filters)
+💡 Aim:
+
+To perform various filtering, aggregation, update, and indexing operations on the orderinfo collection.
+
+✅ Step-by-Step Code with Full Explanation
+🧩 Step 1 — Use / Create database and collection
+use test;
+db.createCollection("orderinfo");
+
+
+👉 Switches to the database test and creates the collection orderinfo.
+If it already exists, MongoDB will just use the same one.
+
+🧩 Step 2 — Insert customer order documents
+db.orderinfo.insertMany([
+ {cust_id:123, cust_name:"abc", status:"A", price:250},
+ {cust_id:124, cust_name:"pqr", status:"B", price:400}
+]);
+
+
+👉 Inserts two order documents:
+
+cust_id	cust_name	status	price
+123	abc	A	250
+124	pqr	B	400
+🧩 Step 3 — Aggregation: average price for status "A"
+db.orderinfo.aggregate([
+  { $match: { status: "A" } },
+  { $group: { _id: "$cust_name", avgPrice: { $avg: "$price" } } }
+]);
+
+🔍 Explanation:
+
+$match → filters documents with status:"A".
+
+$group → groups by customer name and calculates average price.
+
+✅ Output:
+
+[ { "_id": "abc", "avgPrice": 250 } ]
+
+
+Means: customer "abc" with status "A" has an average order price of 250.
+
+🧩 Step 4 — Find documents where price between 100–1000
+db.orderinfo.find({ price: { $gte: 100, $lte: 1000 } }, { status: 1, _id: 0 });
+
+🔍 Explanation:
+
+$gte = greater than or equal
+
+$lte = less than or equal
+
+Only returns status field, hides _id.
+
+✅ Output:
+
+[ { "status": "A" }, { "status": "B" } ]
+
+🧩 Step 5 — Display all documents without _id
+db.orderinfo.find({}, { _id: 0 });
+
+
+✅ Output:
+
+[
+  { cust_id:123, cust_name:"abc", status:"A", price:250 },
+  { cust_id:124, cust_name:"pqr", status:"B", price:400 }
+]
+
+🧩 Step 6 — Create an index and filter by price
+db.orderinfo.createIndex({ price: 1 });
+db.orderinfo.find({ price: { $gt: 200 } });
+
+🔍 Explanation:
+
+createIndex({price:1}) → ascending index on price for faster search/sort.
+
+Then finds all orders with price > 200.
+
+✅ Output:
+
+[
+  { cust_id:123, cust_name:"abc", status:"A", price:250 },
+  { cust_id:124, cust_name:"pqr", status:"B", price:400 }
+]
+
+⚙️ Additional Operations (Updates & Filters)
+🧩 Step 7 — Find customers with price between 250–450
+db.orderinfo.find({ price: { $gte: 250, $lte: 450 } }, { cust_name: 1, _id: 0 });
+
+
+✅ Output:
+
+[ { cust_name: "abc" }, { cust_name: "pqr" } ]
+
+🧩 Step 8 — Increment / Decrement prices
+db.orderinfo.updateOne({ cust_id:123 }, { $inc: { price: 10 } });
+db.orderinfo.updateOne({ cust_id:124 }, { $inc: { price: -5 } });
+
+🔍 Explanation:
+
+$inc → increases or decreases numeric value.
+
+First query adds 10 → price of 123 becomes 260.
+
+Second query subtracts 5 → price of 124 becomes 395.
+
+✅ After Update:
+
+[
+  { cust_id:123, cust_name:"abc", status:"A", price:260 },
+  { cust_id:124, cust_name:"pqr", status:"B", price:395 }
+]
+
+🧩 Step 9 — Remove (unset) a field
+db.orderinfo.updateOne({ cust_id:123 }, { $unset: { status: 1 } });
+
+🔍 Explanation:
+
+$unset → deletes the field from the document.
+
+Removes status from cust_id:123.
+
+✅ After Update:
+
+[
+  { cust_id:123, cust_name:"abc", price:260 },
+  { cust_id:124, cust_name:"pqr", status:"B", price:395 }
+]
+
+🧩 Step 10 — Find customers with OR condition
+db.orderinfo.find({ $or: [ { status: "A" }, { price: 250 } ] }, { cust_name: 1, _id: 0 });
+
+🔍 Explanation:
+
+$or → matches if any condition is true.
+
+Finds all customers where either:
+
+status = "A" or
+
+price = 250.
+
+✅ Output (after updates):
+Since status:"A" was removed and no one has price:250, this may return an empty array:
+
+[]
+
+
+If you reinsert old data, it would return "abc".
+
+🧠 Concept Explanation
+Concept	Description
+$match	Filters documents in aggregation pipeline.
+$group	Groups data and applies functions like $avg, $sum.
+$gte, $lte	Comparison operators for range filters.
+$inc	Increments/decrements a field value.
+$unset	Deletes a field from a document.
+$or	Logical OR condition in queries.
+createIndex()	Improves query performance on that field.
+Projection {field:1,_id:0}	Displays only required fields, hides _id.
+🧾 Viva Questions & Answers
+Question                                       	                          Answer
+What is $inc used for?                                            	To increment or decrement numeric field values.
+What is $unset used for?	                                         To remove a field from a document.
+What does $or do?	                                                Returns documents that match at least one condition.
+Why do we use indexes?	                                               To make queries and sorting operations faster.
+What is the difference between $match and $find?                     	$match is used inside aggregation pipeline; $find is a standalone query.
+Can $unset set a field to null?                                     	No, it completely removes the field from the document.
+What does {status:1,_id:0} mean?	Show only status, hide _id from output.
+

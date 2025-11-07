@@ -1,0 +1,25 @@
+7) Procedure – proc_Grade + driver
+
+Steps: create procedure, then run driver.
+
+
+
+
+CREATE OR REPLACE PROCEDURE proc_Grade(p_marks IN NUMBER, p_class OUT VARCHAR2) AS
+BEGIN
+  IF p_marks BETWEEN 990 AND 1500 THEN p_class:='Distinction';
+  ELSIF p_marks BETWEEN 900 AND 989 THEN p_class:='First';
+  ELSIF p_marks BETWEEN 825 AND 899 THEN p_class:='Higher Second';
+  ELSE p_class:='Pass/Other'; END IF;
+END;
+/
+
+SET SERVEROUTPUT ON;
+DECLARE v_cls VARCHAR2(20); v_name VARCHAR2(40) := '&NAME'; v_marks NUMBER;
+BEGIN
+  SELECT total_marks INTO v_marks FROM Stud_Marks WHERE name=v_name;
+  proc_Grade(v_marks, v_cls);
+  INSERT INTO Result(Roll,Name,Class) VALUES (Result_seq.NEXTVAL, v_name, v_cls);
+  DBMS_OUTPUT.PUT_LINE(v_name||' -> '||v_cls);
+END;
+/

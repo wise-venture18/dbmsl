@@ -1,0 +1,211 @@
+18) Emp/works/Company/Manager (SQL updates/queries)
+##########18.Emp(emp_id,ename, street, city)
+works(emp_id,c_id,ename, cname, sal)
+Company(c_id,cname, city)
+Manager(mgr_id, mgrname)
+i. Modify the database so that a particular company (eg. ABC) now in Pune
+ii. Give all managers of Mbank a 10% raise. If salary is >20,000, give only 3% raise.
+iii. Find out the names of all the employees who works in ‘Bosch’ company in city Pune
+iv. Delete all records in the works table for employees of a particular company (Eg, SBC
+Company) whose salary>50,000. #####################
+
+-----------------------------------------------------------------------
+-- Step 1: Use or create the database
+CREATE DATABASE companydb;
+USE companydb;
+
+-- Step 2: Create required tables
+CREATE TABLE Emp (
+  emp_id INT PRIMARY KEY,
+  ename VARCHAR(50),
+  street VARCHAR(50),
+  city VARCHAR(30)
+);
+
+CREATE TABLE Company (
+  c_id INT PRIMARY KEY,
+  cname VARCHAR(50),
+  city VARCHAR(30)
+);
+
+CREATE TABLE Works (
+  emp_id INT,
+  c_id INT,
+  ename VARCHAR(50),
+  cname VARCHAR(50),
+  sal DECIMAL(10,2)
+);
+
+CREATE TABLE Manager (
+  mgr_id INT PRIMARY KEY,
+  mgrname VARCHAR(50)
+);
+
+-- Step 3: Insert sample data
+INSERT INTO Emp VALUES
+(1,'Rahul','MG Road','Mumbai'),
+(2,'Priya','FC Road','Pune'),
+(3,'Amit','Station Rd','Nashik'),
+(4,'Sneha','JM Road','Pune');
+
+INSERT INTO Company VALUES
+(101,'ABC','Delhi'),
+(102,'MBank','Mumbai'),
+(103,'Bosch','Pune'),
+(104,'SBC','Nagpur');
+
+INSERT INTO Works VALUES
+(1,101,'Rahul','ABC',18000),
+(2,102,'Priya','MBank',25000),
+(3,103,'Amit','Bosch',20000),
+(4,104,'Sneha','SBC',60000);
+
+INSERT INTO Manager VALUES
+(10,'Priya'),
+(11,'Sneha');
+
+-- Step 4: Queries as per question
+
+-- i) Modify database so company ABC is now in Pune
+UPDATE Company
+SET city = 'Pune'
+WHERE UPPER(cname) = 'ABC';
+
+-- ii) Give all managers of MBank a raise:
+-- 10% if salary ≤ 20000, else 3%
+UPDATE Works w
+SET sal = CASE
+            WHEN sal > 20000 THEN sal * 1.03
+            ELSE sal * 1.10
+          END
+WHERE UPPER(w.cname) = 'MBANK'
+  AND w.ename IN (SELECT mgrname FROM Manager);
+
+-- iii) Find names of employees who work in Bosch company in city Pune
+SELECT DISTINCT e.ename
+FROM Emp e
+JOIN Works w ON w.emp_id = e.emp_id
+JOIN Company c ON c.c_id = w.c_id
+WHERE UPPER(w.cname) = 'BOSCH'
+  AND UPPER(c.city) = 'PUNE';
+
+-- iv) Delete all records in Works for employees of SBC company whose salary > 50000
+DELETE FROM Works
+WHERE UPPER(cname) = 'SBC'
+  AND sal > 50000;
+
+-- Step 5: Display updated data to verify results
+SELECT * FROM Company;
+SELECT * FROM Works;
+
+
+
+
+
+
+-----------------------------------------------------------------------------------------------------
+
+🧩 (i) Modify company ‘ABC’ so it is now in Pune
+UPDATE Company
+SET city = 'Pune'
+WHERE UPPER(cname) = 'ABC';
+
+
+✅ Explanation:
+
+UPDATE → changes existing record data.
+
+SET city='Pune' → changes the city name.
+
+WHERE cname='ABC' → ensures only company ABC gets updated.
+
+✅ Output:
+Company ABC’s city changes from Delhi → Pune.
+
+c_id	cname	city
+101	ABC	Pune
+🧩 (ii) Give all managers of MBank a raise
+UPDATE Works w
+SET sal = CASE
+            WHEN sal > 20000 THEN sal * 1.03
+            ELSE sal * 1.10
+          END
+WHERE UPPER(w.cname) = 'MBANK'
+  AND w.ename IN (SELECT mgrname FROM Manager);
+
+
+✅ Explanation:
+
+CASE ... WHEN ... THEN ... → used for conditional updates.
+
+If salary > 20000 → 3% raise
+
+Else → 10% raise
+
+Condition: company name = MBank and employee is a manager.
+
+✅ Output:
+Manager Priya works in MBank with 25000 salary →
+Her new salary = 25000 × 1.03 = 25750
+
+🧩 (iii) Find employees working in Bosch company in Pune
+SELECT DISTINCT e.ename
+FROM Emp e
+JOIN Works w ON w.emp_id = e.emp_id
+JOIN Company c ON c.c_id = w.c_id
+WHERE UPPER(w.cname) = 'BOSCH'
+  AND UPPER(c.city) = 'PUNE';
+
+
+✅ Explanation:
+
+JOIN connects related tables using emp_id and c_id.
+
+We check both:
+
+Company name = Bosch
+
+Company city = Pune
+
+DISTINCT removes duplicates.
+
+✅ Output:
+
+Amit
+
+
+→ Amit works in Bosch, which is located in Pune.
+
+🧩 (iv) Delete all records in Works for employees of company SBC whose salary > 50000
+DELETE FROM Works
+WHERE UPPER(cname) = 'SBC'
+  AND sal > 50000;
+
+
+✅ Explanation:
+
+DELETE FROM Works → removes record from table.
+
+Condition ensures only those:
+
+who work in SBC company
+
+and have salary greater than 50,000.
+
+✅ Before Deletion:
+
+emp_id	cname	sal
+4	SBC	60000
+
+✅ After Deletion:
+That row is removed — no more employees from SBC earning > 50000.
+
+🧾 Viva Questions & Answers
+Question	                                                                      Answer
+What does UPDATE do?	                                  Modifies existing data in a table.
+What is CASE in SQL?	                              It’s used for conditional logic inside queries (like if-else).
+What is a JOIN?                                          	It combines data from multiple tables based on related keys.
+What is DISTINCT?	                                                  Removes duplicate results from a query.
+What does DELETE FROM ... WHERE do?	                                Deletes specific records based on a condition.
+Why use UPPER()?	                                      To make string comparison case-insensitive (treat ABC same as abc).
+Difference between DELETE and DROP?	DELETE removes data only; DROP removes the entire table structure.

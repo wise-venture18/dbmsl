@@ -1,0 +1,183 @@
+10) orderinfo (avg, between, projection, index)
+###########10. create Collection “orderinfo“ which contains the documents given as below(Perform on
+Mongo Terminal)
+{
+cust_id:123
+cust_name:”abc”,
+status:”A”,
+price:250
+}
+1) find the average price for each customers having status 'A'
+2) Display the status of the customers whose amount/price lie between 100 and 1000
+3) Display the customers information without “_id” .
+4) create a simple index on onderinfo collection and fire the queries. ############################
+
+----------------------------------------------------------------
+
+use test;
+db.createCollection("orderinfo");
+db.orderinfo.insertMany([
+ {cust_id:123,cust_name:"abc",status:"A",price:250},
+ {cust_id:124,cust_name:"pqr",status:"B",price:400}
+]);
+
+db.orderinfo.aggregate([{$match:{status:"A"}},{$group:{_id:"$cust_name",avgPrice:{$avg:"$price"}}}]);
+db.orderinfo.find({price:{$gte:100,$lte:1000}},{status:1,_id:0});
+db.orderinfo.find({}, {_id:0});
+db.orderinfo.createIndex({price:1}); 
+db.orderinfo.find({price:{$gt:200}});
+
+--------------------------------------------------------------
+
+ PS10 — MongoDB Practical (orderinfo Collection)
+ Aim:
+
+Perform queries using:
+
+Comparison operators ($gte, $lte)
+
+Aggregation pipeline (for average)
+
+Projection
+
+Index creation
+
+✅ Step 1: Use or create a database
+use test;
+
+
+ This switches to (or creates) a database named test.
+Every MongoDB command must be executed inside some database.
+
+ Step 2: Create a collection & insert data
+db.orderinfo.insertMany([
+  {cust_id:123, cust_name:"abc", status:"A", price:250},
+  {cust_id:124, cust_name:"pqr", status:"B", price:400},
+  {cust_id:125, cust_name:"xyz", status:"A", price:700}
+]);
+
+
+ This creates a collection named orderinfo and inserts 3 documents (records).
+Each document has:
+
+cust_id → Customer ID
+
+cust_name → Customer name
+
+status → Order status (like “A” for active)
+
+price → Order price
+
+ Similar to inserting 3 rows in an SQL table.
+
+ Step 3: Find average price for a particular status using Aggregation
+db.orderinfo.aggregate([
+  { $match: { status: "A" } },
+  { $group: { _id: "$status", avgPrice: { $avg: "$price" } } }
+]);
+
+
+ Explanation:
+
+$match filters only documents with status = "A".
+
+$group groups all those documents by status and calculates:
+
+avgPrice = average of all price fields where status = "A".
+
+ Output example:
+
+[ { "_id": "A", "avgPrice": 475 } ]
+
+
+Means average price of all “A” status orders is 475.
+
+ Step 4: Find all orders with price between 100 and 1000
+db.orderinfo.find({ price: { $gte: 100, $lte: 1000 } });
+
+
+ Explanation:
+
+$gte = greater than or equal to
+
+$lte = less than or equal to
+So this command returns all documents where price is between 100 and 1000.
+
+ Output:
+
+[
+  {cust_id:123, cust_name:"abc", status:"A", price:250},
+  {cust_id:124, cust_name:"pqr", status:"B", price:400},
+  {cust_id:125, cust_name:"xyz", status:"A", price:700}
+]
+
+ Step 5: Projection — show only specific fields
+db.orderinfo.find({}, { cust_name: 1, status: 1, _id: 0 });
+
+
+ Explanation:
+
+The first {} means “no condition → select all”.
+
+The second {} specifies projection:
+
+cust_name:1 → show this field
+
+status:1 → show this field
+
+_id:0 → hide the _id (by default it’s always shown)
+
+ Output:
+
+[
+  { cust_name: "abc", status: "A" },
+  { cust_name: "pqr", status: "B" },
+  { cust_name: "xyz", status: "A" }
+]
+
+ Step 6: Create an index on price
+db.orderinfo.createIndex({ price: 1 });
+
+
+ Explanation:
+
+This creates an ascending index on the price field.
+
+Index helps speed up queries like sorting or filtering by price.
+
+ Output:
+
+{
+  "createdCollectionAutomatically" : false,
+  "numIndexesBefore" : 1,
+  "numIndexesAfter" : 2,
+  "ok" : 1
+}
+
+
+Now MongoDB can search faster by price.
+
+ Step 7: Use the index (verify search)
+db.orderinfo.find({ price: { $gt: 200 } });
+
+
+ Shows all documents where price > 200, now faster because index is used.
+
+ Output:
+
+[
+  {cust_id:124, cust_name:"pqr", status:"B", price:400},
+  {cust_id:125, cust_name:"xyz", status:"A", price:700}
+]
+
+
+
+
+
+🧾 Viva Q&A
+Question	Answer
+What is the use of $match?	              It filters documents before grouping (like WHERE in SQL).
+What does $group do?	                    It groups documents by a field and performs aggregate operations like $avg, $sum, $min, $max.
+What are $gte and $lte?	                MongoDB comparison operators for greater than equal and less than equal.
+Why do we use createIndex()?	           To speed up query execution on that field.
+What is projection in MongoDB?	          Selecting only specific fields to display in output.

@@ -1,0 +1,27 @@
+6) Cursor – copy N_RollCall → O_RollCall
+
+Steps: run the block and show SELECT * FROM O_RollCall.
+
+
+
+
+
+
+-- Assume both tables exist with (roll_no,name,class,att)
+SET SERVEROUTPUT ON;
+DECLARE
+  CURSOR c_new(p_class VARCHAR2) IS SELECT * FROM N_RollCall WHERE class=p_class;
+  v N_RollCall%ROWTYPE; v_exists NUMBER;
+BEGIN
+  OPEN c_new('&CLASS');
+  LOOP
+    FETCH c_new INTO v; EXIT WHEN c_new%NOTFOUND;
+    SELECT COUNT(*) INTO v_exists FROM O_RollCall WHERE roll_no=v.roll_no;
+    IF v_exists=0 THEN
+      INSERT INTO O_RollCall(roll_no,name,class,att) VALUES(v.roll_no,v.name,v.class,v.att);
+    END IF;
+  END LOOP;
+  CLOSE c_new;
+END;
+/
+SELECT * FROM O_RollCall WHERE class='&CLASS';

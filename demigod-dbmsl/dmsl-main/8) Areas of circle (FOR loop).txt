@@ -1,0 +1,14 @@
+8) Areas of circle (FOR loop)
+
+Steps: paste and run; then SELECT * FROM areas;
+
+
+
+CREATE TABLE areas(radius NUMBER, area NUMBER);
+BEGIN
+  FOR r IN 5..9 LOOP
+    INSERT INTO areas VALUES(r, 3.14159265*r*r);
+  END LOOP;
+END;
+/
+SELECT * FROM areas ORDER BY radius;

@@ -1,0 +1,243 @@
+15) Student marks – aggregates
+############15.Collection creation Student and insert following data in that:
+Rollno:1,name:'Navin',subject:'DMSA',marks:78
+Rollno:2,name:'anusha',subject:'OSD',marks:75
+Rollno:3,name:'ravi',subject:'TOC',marks:69
+Rollno:4,name:'veena',subject:'TOC',marks:70
+Rollno:5,name:‘Pravini',subject:‘OSD',marks:80
+Rollno:6,name: ‘Reena',subject: ‘DMSA',marks:50
+Rollno:7,name:‘Geeta',subject:‘CN',marks:90
+Rollno:8,name:‘Akash',subject:‘CN',marks:85
+1. Write aggregate function to find Max marks of Each Subject.
+2. Write aggregate function to find Min marks of Each Subject.
+3. Write aggregate function to find Sum of marks of Each Subject.
+4. Write aggregate function to find Avg marks of Each Subject.
+5. Write aggregate function to find first record Each Subject.
+6. Write aggregate function to find Last record of Each Subject.
+7. Write aggregate function to find count number of records of each subject
+8. Write aggregate function to find count number of records of each subject#################################
+
+-------------------------------------------------------------------------------------------------------------------------------------
+
+use test;
+db.createCollection("Student");
+db.Student.insertMany([
+ {Rollno:1,name:'Navin',subject:'DMSA',marks:78},
+ {Rollno:2,name:'anusha',subject:'OSD',marks:75},
+ {Rollno:3,name:'ravi',subject:'TOC',marks:69},
+ {Rollno:4,name:'veena',subject:'TOC',marks:70},
+ {Rollno:5,name:'Pravini',subject:'OSD',marks:80},
+ {Rollno:6,name:'Reena',subject:'DMSA',marks:50},
+ {Rollno:7,name:'Geeta',subject:'CN',marks:90},
+ {Rollno:8,name:'Akash',subject:'CN',marks:85}
+]);
+db.Student.aggregate([{$group:{_id:"$subject", maxMarks:{$max:"$marks"}}}]);
+db.Student.aggregate([{$group:{_id:"$subject", minMarks:{$min:"$marks"}}}]);
+db.Student.aggregate([{$group:{_id:"$subject", sumMarks:{$sum:"$marks"}}}]);
+db.Student.aggregate([{$group:{_id:"$subject", avgMarks:{$avg:"$marks"}}}]);
+db.Student.aggregate([{$sort:{subject:1,Rollno:1}},{$group:{_id:"$subject", first:{$first:"$$ROOT"}}}]);
+db.Student.aggregate([{$sort:{subject:1,Rollno:1}},{$group:{_id:"$subject", last: {$last:"$$ROOT"}}}]);
+db.Student.aggregate([{$group:{_id:"$subject", cnt:{$sum:1}}}]);
+-----------------------------------------------------------------------------------------------------------------------------------
+
+🎓 PS15 – MongoDB (Student Marks Aggregates)
+💡 Aim:
+
+To perform aggregate functions on the Student collection like maximum, minimum, sum, average, first, last, and count of marks grouped by subject.
+
+✅ Step-by-Step Code with Explanation
+🧩 Step 1 — Insert student data
+db.Student.insertMany([
+  {Rollno:1, name:'Navin', subject:'DMSA', marks:78},
+  {Rollno:2, name:'Anusha', subject:'OSD', marks:75},
+  {Rollno:3, name:'Ravi', subject:'TOC', marks:69},
+  {Rollno:4, name:'Veena', subject:'TOC', marks:70},
+  {Rollno:5, name:'Pravini', subject:'OSD', marks:80},
+  {Rollno:6, name:'Reena', subject:'DMSA', marks:50},
+  {Rollno:7, name:'Geeta', subject:'CN', marks:90},
+  {Rollno:8, name:'Akash', subject:'CN', marks:85}
+]);
+
+🔍 Explanation:
+
+Creates a collection named Student.
+
+Each document stores a student’s roll number, name, subject, and marks.
+
+Data includes students from 4 subjects: DMSA, OSD, TOC, and CN.
+
+✅ Resulting Data:
+
+[
+  {Rollno:1, name:'Navin', subject:'DMSA', marks:78},
+  {Rollno:6, name:'Reena', subject:'DMSA', marks:50},
+  {Rollno:2, name:'Anusha', subject:'OSD', marks:75},
+  {Rollno:5, name:'Pravini', subject:'OSD', marks:80},
+  {Rollno:3, name:'Ravi', subject:'TOC', marks:69},
+  {Rollno:4, name:'Veena', subject:'TOC', marks:70},
+  {Rollno:7, name:'Geeta', subject:'CN', marks:90},
+  {Rollno:8, name:'Akash', subject:'CN', marks:85}
+]
+
+⚙️ Aggregation Queries
+
+Aggregation in MongoDB is used to group and calculate values across documents — similar to SQL’s GROUP BY.
+
+🧩 1️⃣ Find maximum marks per subject
+db.Student.aggregate([
+  { $group: { _id: "$subject", maxMarks: { $max: "$marks" } } }
+]);
+
+🔍 Explanation:
+
+$group → groups documents by subject.
+
+$max → finds the highest marks for each subject.
+
+✅ Output:
+
+[
+  { "_id": "CN", "maxMarks": 90 },
+  { "_id": "DMSA", "maxMarks": 78 },
+  { "_id": "OSD", "maxMarks": 80 },
+  { "_id": "TOC", "maxMarks": 70 }
+]
+
+🧩 2️⃣ Find minimum marks per subject
+db.Student.aggregate([
+  { $group: { _id: "$subject", minMarks: { $min: "$marks" } } }
+]);
+
+
+✅ Output:
+
+[
+  { "_id": "CN", "minMarks": 85 },
+  { "_id": "DMSA", "minMarks": 50 },
+  { "_id": "OSD", "minMarks": 75 },
+  { "_id": "TOC", "minMarks": 69 }
+]
+
+🧩 3️⃣ Find total marks (sum) per subject
+db.Student.aggregate([
+  { $group: { _id: "$subject", sumMarks: { $sum: "$marks" } } }
+]);
+
+
+✅ Output:
+
+[
+  { "_id": "CN", "sumMarks": 175 },
+  { "_id": "DMSA", "sumMarks": 128 },
+  { "_id": "OSD", "sumMarks": 155 },
+  { "_id": "TOC", "sumMarks": 139 }
+]
+
+🧩 4️⃣ Find average marks per subject
+db.Student.aggregate([
+  { $group: { _id: "$subject", avgMarks: { $avg: "$marks" } } }
+]);
+
+
+✅ Output:
+
+[
+  { "_id": "CN", "avgMarks": 87.5 },
+  { "_id": "DMSA", "avgMarks": 64 },
+  { "_id": "OSD", "avgMarks": 77.5 },
+  { "_id": "TOC", "avgMarks": 69.5 }
+]
+
+🧩 5️⃣ Find first student record in each subject
+db.Student.aggregate([
+  { $sort: { subject: 1, Rollno: 1 } },
+  { $group: { _id: "$subject", first: { $first: "$$ROOT" } } }
+]);
+
+🔍 Explanation:
+
+$sort → sorts data first by subject and roll number.
+
+$first → picks the first record from each group.
+
+$$ROOT → includes the entire original document.
+
+✅ Output:
+
+[
+  { "_id": "CN", "first": { Rollno:7, name:"Geeta", marks:90 } },
+  { "_id": "DMSA", "first": { Rollno:1, name:"Navin", marks:78 } },
+  { "_id": "OSD", "first": { Rollno:2, name:"Anusha", marks:75 } },
+  { "_id": "TOC", "first": { Rollno:3, name:"Ravi", marks:69 } }
+]
+
+🧩 6️⃣ Find last student record in each subject
+db.Student.aggregate([
+  { $sort: { subject: 1, Rollno: 1 } },
+  { $group: { _id: "$subject", last: { $last: "$$ROOT" } } }
+]);
+
+🔍 Explanation:
+
+$last → picks the last record from each subject group (after sorting).
+
+✅ Output:
+
+[
+  { "_id": "CN", "last": { Rollno:8, name:"Akash", marks:85 } },
+  { "_id": "DMSA", "last": { Rollno:6, name:"Reena", marks:50 } },
+  { "_id": "OSD", "last": { Rollno:5, name:"Pravini", marks:80 } },
+  { "_id": "TOC", "last": { Rollno:4, name:"Veena", marks:70 } }
+]
+
+🧩 7️⃣ Count number of students per subject
+db.Student.aggregate([
+  { $group: { _id: "$subject", cnt: { $sum: 1 } } }
+]);
+
+🔍 Explanation:
+
+$sum:1 → increments counter by 1 per document (like COUNT(*) in SQL).
+
+✅ Output:
+
+[
+  { "_id": "CN", "cnt": 2 },
+  { "_id": "DMSA", "cnt": 2 },
+  { "_id": "OSD", "cnt": 2 },
+  { "_id": "TOC", "cnt": 2 }
+]
+
+⚙️ How to Run in Ubuntu
+
+1️⃣ Save all code in a file:
+
+nano p15.js
+
+
+2️⃣ Paste code → Save (Ctrl+O → Enter → Ctrl+X)
+3️⃣ Run:
+
+mongosh < p15.js
+
+
+✅ You’ll get all outputs in order.
+
+🧠 Concept Explanation
+Operator	Meaning	Example
+$group	Groups documents by a field	group by subject
+$max	Highest value in group	max marks per subject
+$min	Lowest value	min marks per subject
+$sum	Total or count	total marks per subject
+$avg	Average value	average marks per subject
+$first	First record after sorting	first student in subject
+$last	Last record after sorting	last student in subject
+$sort	Sorts documents	by subject or roll number
+🧾 Viva Questions & Answers
+Question	                                       Answer
+What is $group in MongoDB?	                   It groups documents based on a field, similar to SQL GROUP BY.
+What is $max used for?                       	Finds the maximum value in each group.
+What is $sum:1 used for?	                            Counts total documents in each group.
+  What does $first and $last do?  	                        Returns the first or last document in each group.
+What is the purpose of $sort before $group?	                         Ensures correct order so $first and $last work properly.
+Difference between $sum and $avg?	                            $sum adds all values, $avg gives the mean value.

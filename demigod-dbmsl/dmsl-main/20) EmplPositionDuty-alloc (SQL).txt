@@ -1,0 +1,196 @@
+20) Empl/Position/Duty-alloc (SQL)
+
+##############21.Employee(employee_name,street,city)
+Works(employee_name,company_name,salary)
+Company(company_name,city)
+Manages(employee_name,manager_name)
+1. Find the names of employees who work for First Bank Coorporation.
+2. Find the names and cities of residence of all employees who work for First Bank
+Coorporation
+3. Find the names, street addresses, and cities of residence of all employees who work for First
+Bank Coorporation and earn more than $10000.
+4.Find all employees in the database who lives in the same cities as tha companies for which
+they work.
+5.Find all employees in the database who lives in the same cities and on the same streets as do
+their manager.
+6.Find all employees in the database who do not work for First Bank Coorporation
+7.Give all employees of First Bank Coorporation” a 10% raise
+8.Delete all tuples in the “Works” relation for employees of “Small Bank Coorporation”#########################
+
+----------------------------------------------------------------------------------------------
+-- create & use a fresh db (MySQL)
+CREATE DATABASE IF NOT EXISTS dutydb;
+USE dutydb;
+
+-- tables
+DROP TABLE IF EXISTS Duty_alloc;
+DROP TABLE IF EXISTS Empl;
+DROP TABLE IF EXISTS Position;
+
+CREATE TABLE Empl (
+  e_no      INT PRIMARY KEY,
+  e_name    VARCHAR(50) NOT NULL,
+  post      VARCHAR(30) NOT NULL,
+  pay_rate  DECIMAL(10,2) NOT NULL
+);
+
+CREATE TABLE Position (
+  pos_no INT PRIMARY KEY,
+  post   VARCHAR(30) UNIQUE NOT NULL
+);
+
+-- month,year kept as simple fields per spec
+CREATE TABLE Duty_alloc (
+  pos_no INT,
+  e_no   INT,
+  month  VARCHAR(10),
+  year   INT,
+  shift  INT,
+  FOREIGN KEY (pos_no) REFERENCES Position(pos_no),
+  FOREIGN KEY (e_no)   REFERENCES Empl(e_no)
+);
+
+-- sample data (minimal but enough to demo queries)
+INSERT INTO Position VALUES
+(1,'manager'),(2,'developer'),(3,'tester');
+
+INSERT INTO Empl VALUES
+(121,'Riya','developer',18000),
+(122,'Sachin','manager',22000),
+(123,'Neha','manager',19500),
+(124,'Aman','tester',15000),
+(125,'Meera','manager',26000);
+
+INSERT INTO Duty_alloc VALUES
+(1,123,'APR',2003,1),   -- Neha manager, April 2003, first shift
+(1,122,'APR',2003,2),
+(1,125,'APR',2003,1),
+(2,121,'APR',2003,1),
+(3,124,'APR',2003,3);
+
+
+===========Queries as asked=========
+-- i) Duty allocation for e_no 123, first shift, April 2003
+SELECT * 
+FROM Duty_alloc 
+WHERE e_no = 123 AND shift = 1 AND month = 'APR' AND year = 2003;
+
+-- ii) Employees whose pay_rate >= pay of 'Sachin'
+SELECT * 
+FROM Empl
+WHERE pay_rate >= (SELECT pay_rate FROM Empl WHERE e_name = 'Sachin');
+
+-- iii) View: min, max, avg salary for all posts
+CREATE OR REPLACE VIEW Post_Salary_Stats AS
+SELECT post,
+       MIN(pay_rate) AS min_pay,
+       MAX(pay_rate) AS max_pay,
+       AVG(pay_rate) AS avg_pay
+FROM Empl
+GROUP BY post;
+
+SELECT * FROM Post_Salary_Stats;   -- show the view
+
+-- iv) Count of different employees on each shift having post 'manager'
+SELECT d.shift, COUNT(DISTINCT d.e_no) AS emp_count
+FROM Duty_alloc d
+JOIN Empl e ON e.e_no = d.e_no
+WHERE LOWER(e.post) = 'manager'
+GROUP BY d.shift
+ORDER BY d.shift;
+
+========================================================================================
+
+Queries and Explanation
+🧩 (i) Get duty allocation for employee no. 123, first shift, April 2003
+SELECT * 
+FROM Duty_alloc 
+WHERE e_no = 123 AND shift = 1 AND month = 'APR' AND year = 2003;
+
+
+✅ Explanation:
+
+Searches Duty_alloc table.
+
+Matches specific employee (e_no=123) working in April 2003 in shift 1.
+
+✅ Output:
+
+pos_no	e_no	month	year	shift
+1	123	APR	2003	1
+🧩 (ii) Employees whose pay is ≥ pay of Sachin
+SELECT * 
+FROM Empl
+WHERE pay_rate >= (SELECT pay_rate FROM Empl WHERE e_name = 'Sachin');
+
+
+✅ Explanation:
+
+Inner query: gets Sachin’s pay_rate = 22000.
+
+Outer query: fetches all employees having pay ≥ 22000.
+
+✅ Output:
+
+e_no	e_name	post	pay_rate
+122	Sachin	manager	22000
+125	Meera	manager	26000
+🧩 (iii) Create a view for minimum, maximum, and average salary of all posts
+CREATE OR REPLACE VIEW Post_Salary_Stats AS
+SELECT post,
+       MIN(pay_rate) AS min_pay,
+       MAX(pay_rate) AS max_pay,
+       AVG(pay_rate) AS avg_pay
+FROM Empl
+GROUP BY post;
+
+SELECT * FROM Post_Salary_Stats;
+
+
+✅ Explanation:
+
+GROUP BY post groups employees by their job type.
+
+MIN, MAX, and AVG find lowest, highest, and average pay for each post.
+
+VIEW saves this summary for future use.
+
+✅ Output:
+
+post	min_pay	max_pay	avg_pay
+developer	18000	18000	18000
+manager	19500	26000	22500
+tester	15000	15000	15000
+🧩 (iv) Count of employees on each shift having post ‘manager’
+SELECT d.shift, COUNT(DISTINCT d.e_no) AS emp_count
+FROM Duty_alloc d
+JOIN Empl e ON e.e_no = d.e_no
+WHERE LOWER(e.post) = 'manager'
+GROUP BY d.shift
+ORDER BY d.shift;
+
+
+✅ Explanation:
+
+JOIN combines both tables using e_no.
+
+Filters only employees having post 'manager'.
+
+Groups by shift → counts how many managers in each shift.
+
+✅ Output:
+
+shift	emp_count
+1	2
+2	1
+
+(Managers Neha & Meera work in shift 1, Sachin in shift 2)
+
+🧾 Viva Question Answers
+Question		                                                                Answer
+What is a View?	                                	A virtual table that stores the result of a query for easy reuse.
+Why use subquery here?	                        	To compare each employee’s pay with Sachin’s pay dynamically.
+What is the use of GROUP BY?	                        To group rows based on a column and apply aggregate functions (min, max, avg).
+Why use DISTINCT in count?	                                To ensure we count each employee only once per shift.
+What does JOIN do?		                                              Combines data from multiple tables using related columns.
+What is the difference between DELETE and DROP?		              DELETE removes rows, DROP removes the table structure.

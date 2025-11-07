@@ -1,0 +1,33 @@
+3) Customer–Account (SQL queries)
+
+Steps:
+
+Create minimal tables if needed, then run each SELECT.
+
+Keep them in p3.sql.
+
+-- SELECTS to paste/run
+SELECT c.cname, a.acc_type, a.amount
+FROM Customer c JOIN Account a USING(c_id)
+WHERE LOWER(a.acc_type)='saving';
+
+SELECT * FROM Customer NATURAL JOIN Account;
+SELECT * FROM Customer c LEFT JOIN Account a ON a.c_id=c.c_id;
+SELECT * FROM Customer c RIGHT JOIN Account a ON a.c_id=c.c_id;
+
+SELECT * FROM Customer
+WHERE city=(SELECT city FROM Customer WHERE LOWER(cname)='pooja');
+
+SELECT * FROM Account
+WHERE amount < (SELECT AVG(amount) FROM Account);
+
+SELECT c_id FROM Account
+WHERE amount=(SELECT MAX(amount) FROM Account);
+
+SELECT acc_type, amount FROM (
+  SELECT acc_type, amount, RANK() OVER(PARTITION BY acc_type ORDER BY amount) r
+  FROM Account
+) WHERE r=1;
+
+SELECT * FROM Account
+WHERE amount > ANY (SELECT amount FROM Account WHERE LOWER(acc_type)='saving');

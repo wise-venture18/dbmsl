@@ -1,0 +1,19 @@
+5) University – student/instructor/course
+
+Steps: paste each query.
+
+
+
+
+SELECT dept_name, AVG(salary) avg_sal
+FROM instructor GROUP BY dept_name HAVING AVG(salary)>42000;
+
+UPDATE instructor SET salary=salary*1.10 WHERE LOWER(dept_name)='computer';
+
+SELECT name FROM instructor WHERE name NOT IN ('Amol','Amit');
+
+SELECT name FROM student WHERE LOWER(name) LIKE '%am%';
+
+SELECT DISTINCT s.name
+FROM student s JOIN course c ON c.dept_name=s.dept_name
+WHERE LOWER(s.dept_name)='computer' AND UPPER(c.title) LIKE '%DBMS%';

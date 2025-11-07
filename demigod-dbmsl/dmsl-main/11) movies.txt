@@ -1,0 +1,181 @@
+11) movies
+###################11.Create Collection “movies“ which contains the documents given as below(Perform on
+Mongo Terminal)
+{
+name: “Movie1”,
+type: “action”,
+budget:1000000
+producer:{
+name: “producer1”,
+address:”PUNE”
+}
+}
+i. Find the name of the movie having budget greater than 1,00,000.
+ii. Find the name of producer who lives in Pune
+iii. Update the type of movie “action” to “horror”
+iv. Find all the documents produced by name “producer1” with their address####################
+
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+use mov;
+db.createCollection("movies");
+
+db.movies.insertOne({name:"Movie1",type:"action",budget:1000000,producer:{name:"producer1",address:"PUNE"}});
+db.movies.find({budget:{$gt:100000}},{name:1,_id:0});
+db.movies.find({"producer.address":"PUNE"},{"producer.name":1,_id:0});
+db.movies.updateMany({type:"action"},{$set:{type:"horror"}});
+db.movies.find({"producer.name":"producer1"},{name:1,"producer.address":1,_id:0});
+
+
+------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+🍿 Problem Statement 11 — MongoDB (Movies Collection)
+💡 Aim:
+
+Create a collection movies and perform the following:
+
+Insert documents with nested fields.
+
+Retrieve records based on conditions.
+
+Update values in documents.
+
+Display selected fields (projection).
+
+✅ Step-by-step Code with Explanation
+🧩 Step 1 — Use or Create Database
+use test;
+
+
+👉 This command switches to (or creates) a database named test.
+If the database doesn’t exist, MongoDB will automatically create it when data is inserted.
+
+🧩 Step 2 — Insert Data into movies
+db.movies.insertOne({
+  name: "Movie1",
+  type: "action",
+  budget: 1000000,
+  producer: { name: "producer1", address: "PUNE" }
+});
+
+
+👉 This creates a collection named movies and inserts one document with these fields:
+
+name → Movie name
+
+type → Genre (action, comedy, etc.)
+
+budget → Movie budget
+
+producer → Nested document (object) having name and address
+
+✅ Output:
+
+{ acknowledged: true, insertedId: ObjectId("...") }
+
+🧩 Step 3 — Find movies having budget > 100000
+db.movies.find({ budget: { $gt: 100000 } }, { name: 1, _id: 0 });
+
+
+👉 Explanation:
+
+$gt = greater than operator
+
+{ budget: { $gt: 100000 } } → filters only movies where budget > 100000
+
+{ name:1, _id:0 } → projection; shows only name and hides _id
+
+✅ Output:
+
+[ { name: "Movie1" } ]
+
+
+→ Shows all movies with budget greater than 1 lakh.
+
+🧩 Step 4 — Find movies whose producer address is “PUNE”
+db.movies.find({ "producer.address": "PUNE" }, { "producer.name": 1, _id: 0 });
+
+
+👉 Explanation:
+
+"producer.address" → accessing a nested field (field inside another document)
+
+Filters all movies where producer’s address = "PUNE"
+
+Projection: show only producer.name
+
+✅ Output:
+
+[ { "producer": { "name": "producer1" } } ]
+
+
+→ Means the movie’s producer name is producer1 and their address is PUNE.
+
+🧩 Step 5 — Update all movies with type "action" → "horror"
+db.movies.updateMany({ type: "action" }, { $set: { type: "horror" } });
+
+
+👉 Explanation:
+
+updateMany() → updates all matching documents
+
+{ type: "action" } → filter condition
+
+$set: { type: "horror" } → modifies the type field’s value
+
+✅ Output:
+
+{ acknowledged: true, matchedCount: 1, modifiedCount: 1 }
+
+
+→ One document matched and updated successfully.
+
+✅ Now if you check:
+
+db.movies.find();
+
+
+Output:
+
+[
+  {
+    "_id": ObjectId("..."),
+    "name": "Movie1",
+    "type": "horror",
+    "budget": 1000000,
+    "producer": { "name": "producer1", "address": "PUNE" }
+  }
+]
+
+
+→ The type changed from “action” to “horror”.
+
+🧩 Step 6 — Find movies where producer name = “producer1”
+db.movies.find({ "producer.name": "producer1" }, { name: 1, "producer.address": 1, _id: 0 });
+
+
+👉 Explanation:
+
+Filter: "producer.name": "producer1" → checks nested field
+
+Projection: shows name and producer’s address
+
+✅ Output:
+
+[ { name: "Movie1", producer: { address: "PUNE" } } ]
+
+
+🧾 Viva Questions & Answers
+Question	Answer
+What is the purpose of insertOne()?                                	To insert a single document into a collection.
+What does $gt stand for?	                                    Greater than — used to filter numeric fields.
+What is a nested document?                                      	A field containing another document/object (like producer info).
+What is $set used for?	                                          To update the value of existing fields.
+What does updateMany() do?	                                    Updates all documents matching the condition.
+What is projection in MongoDB?	                                  Selecting only specific fields to display in the output.
+What is the use of dot notation (producer.name)?	                      To access or query nested fields inside documents.
+
