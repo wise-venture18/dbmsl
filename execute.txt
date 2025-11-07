@@ -47,3 +47,18 @@ Once connected, run:
 
 Output:
 Hello from PL/SQL on Ubuntu!
+__________________________________
+-> BASIC QUERIES :
+MogoDB :
+Clear Data (Fresh Database, Same MongoDB)
+
+If you only want to delete everything inside your prac11 database and start over:
+
+Step 1: Open mongosh
+mongosh
+
+Step 2: Switch to your database
+use prac11
+
+Step 3: Drop (delete) the entire database
+db.dropDatabase();
