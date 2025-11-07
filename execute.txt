@@ -48,6 +48,67 @@ Once connected, run:
 Output:
 Hello from PL/SQL on Ubuntu!
 __________________________________
+-> How Execute PLSQL Using SQLPlus On Windos :
+⚙️ Steps to Execute a PL/SQL Program in SQL*Plus
+🔹 Step 1: Open SQL*Plus
+Open Command Prompt and type:
+sqlplus
+
+You’ll see:
+Enter user-name: system
+Enter password:
+
+Then log in with your Oracle username and password.
+
+🔹 Step 2: Connect to Database
+If not already connected, you can connect manually:
+
+CONNECT system/password;
+
+(Replace password with your real Oracle password.)
+
+🔹 Step 3: Enable Output Display
+To make DBMS_OUTPUT.PUT_LINE show text on the screen:
+SET SERVEROUTPUT ON;
+
+🔹 Step 4: Create a New PL/SQL File
+To write your PL/SQL program:
+
+EDIT sqltest;
+
+This opens a text editor (like Notepad) where you can type your PL/SQL code.
+Example program:
+
+DECLARE
+  v_name VARCHAR2(20) := 'Yash';
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('Hello ' || v_name || ', Welcome to PL/SQL!');
+END;
+/
+Then save and close the editor (in Notepad → press Ctrl+S, then close).
+
+🔹 Step 5: Execute the File
+Back in SQL*Plus, run:
+
+@sqltest
+
+This executes your file named sqltest.sql.
+
+🔹 Step 6: See the Output
+SQL*Plus will show:
+Hello Yash, Welcome to PL/SQL!
+PL/SQL procedure successfully completed.
+
+🔹 Step 7: (Optional) Edit Again
+If you want to make changes:
+
+EDIT sqltest;
+
+After saving, just re-run:
+
+@sqltest
+
+__________________________________
 -> BASIC QUERIES :
 MogoDB :
 Clear Data (Fresh Database, Same MongoDB)
