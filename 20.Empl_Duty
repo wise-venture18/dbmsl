@@ -6,11 +6,6 @@
 CREATE DATABASE dutydb;
 USE dutydb;
 
--- Step 2: Drop old tables if they exist (cleanup)
-DROP TABLE IF EXISTS Duty_alloc;
-DROP TABLE IF EXISTS Empl;
-DROP TABLE IF EXISTS Position;
-
 -- Step 3: Create tables
 CREATE TABLE Empl (
   e_no INT PRIMARY KEY,
