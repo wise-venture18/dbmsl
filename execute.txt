@@ -1,0 +1,49 @@
+-> MySQL In Ubantu
+Commands used : 
+mysql -u root -p
+_____________________________
+-> MongoDB In Ubantu
+ 1. Check if MongoDB & mongosh are installed
+Run: mongosh --version
+
+2. Start mongosh
+Now simply type:
+mongosh
+
+You’ll see output like:
+Current Mongosh Log ID: 6738bcb3a3e...
+Connecting to: mongodb://127.0.0.1:27017/
+
+Then you’ll enter the MongoDB shell prompt:
+test>
+
+3. Verify MongoDB connection
+In the mongosh shell, try:
+show dbs
+________________________________
+-> PLSQL In Ubantu
+ Step 1: Write Your PL/SQL Code in Notepad
+You can use Notepad, VS Code, or Gedit to write your PL/SQL program.
+
+Example: hello.sql
+
+SET SERVEROUTPUT ON;
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Hello from PL/SQL on Ubuntu!');
+END;
+/
+
+Save the file as:
+/home/yourusername/hello.sql
+
+Step 2: Connect to Oracle Using SQL*Plus
+Open your terminal and connect to Oracle:
+sqlplus system/password@localhost
+(Replace system and password with your Oracle credentials.)
+
+Step 3: Run Your PL/SQL File
+Once connected, run:
+@/home/yourusername/hello.sql
+
+Output:
+Hello from PL/SQL on Ubuntu!
