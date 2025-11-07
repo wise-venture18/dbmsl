@@ -10,10 +10,12 @@
 
 
 // -- 1) Create and use a DB
+
 CREATE DATABASE bankdb;
 USE bankdb;
 
 // -- 2) Tables
+
 CREATE TABLE Customer (
   C_Id   INT PRIMARY KEY,
   Cname  VARCHAR(50),
@@ -21,6 +23,7 @@ CREATE TABLE Customer (
 );
 
 // -- Keep Account without a FK so we can insert C_Id=11 (used to show RIGHT JOIN)
+
 CREATE TABLE Account (
   C_Id    INT,
   Acc_Type VARCHAR(20),
@@ -28,6 +31,7 @@ CREATE TABLE Account (
 );
 
 // -- 3) Seed data (from the question)
+
 INSERT INTO Customer (C_Id, Cname, City) VALUES
 (1,'John','Nashik'),
 (2,'Seema','Aurangabad'),
@@ -53,6 +57,7 @@ INSERT INTO Account (C_Id, Acc_Type, Amount) VALUES
 (11,'Current',45000);
 
 // -- 4) Q1 Show cname, Acc_Type, Amount for customers having a Saving account
+
 SELECT c.Cname, a.Acc_Type, a.Amount
 FROM Customer c
 JOIN Account a ON a.C_Id = c.C_Id
@@ -60,35 +65,42 @@ WHERE a.Acc_Type = 'Saving';
 
 // -- 5) Q2 Display data using Natural, Left, Right join
 -- Natural join (joins by same-named columns like C_Id)
+
 SELECT * 
 FROM Customer NATURAL JOIN Account;
 
 // -- Left join (all customers, even if no account)
+
 SELECT c.*, a.Acc_Type, a.Amount
 FROM Customer c
 LEFT JOIN Account a ON a.C_Id = c.C_Id;
 
 // -- Right join (all accounts, even if no matching customer like C_Id=11)
+
 SELECT c.*, a.Acc_Type, a.Amount
 FROM Customer c
 RIGHT JOIN Account a ON a.C_Id = c.C_Id;
 
 // -- 6) Q3 Customers living in the same city as 'Pooja'
+
 SELECT *
 FROM Customer
 WHERE City = (SELECT City FROM Customer WHERE Cname = 'Pooja');
 
 // -- 7) Q4 Accounts having amount less than the average amount
+
 SELECT *
 FROM Account
 WHERE Amount < (SELECT AVG(Amount) FROM Account);
 
 // -- 8) Q5 C_Id having maximum amount in Account
+
 SELECT C_Id, Amount
 FROM Account
 WHERE Amount = (SELECT MAX(Amount) FROM Account);
 
 // -- 9) Q6 Amount and Acc_Type for rows whose amount is the minimum for that Acc_Type
+
 SELECT a.Acc_Type, a.Amount, a.C_Id
 FROM Account a
 WHERE a.Amount = (
@@ -98,6 +110,7 @@ WHERE a.Amount = (
 // // -- 10) Q7 Amounts higher than any Saving account amount
 // -- Interpretation usually means higher than all Saving amounts
 // -- Use > MAX(Saving)
+
 SELECT C_Id, Acc_Type, Amount
 FROM Account
 WHERE Amount > (SELECT MAX(Amount) FROM Account WHERE Acc_Type = 'Saving');
