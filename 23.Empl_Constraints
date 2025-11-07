@@ -1,0 +1,57 @@
+-- **************************************
+-- PRACTICAL 23 – EMPLOYEE TABLE WITH CONSTRAINTS, INDEX & VIEW
+-- **************************************
+
+-- Step 1: Create and use database
+CREATE DATABASE empdb;
+USE empdb;
+
+-- Step 3: Create table 'emp' with constraints
+-- Eno – Primary Key (auto increment starting from 101)
+-- Ename – NOT NULL
+-- Address – Default 'Nashik'
+-- Joindate – Date of joining
+
+CREATE TABLE emp (
+  Eno INT PRIMARY KEY AUTO_INCREMENT,
+  Ename VARCHAR(50) NOT NULL,
+  Address VARCHAR(50) DEFAULT 'Nashik',
+  Joindate DATE,
+  Salary DECIMAL(10,2)
+);
+
+-- Step 4: Set the starting value of Eno sequence to 101
+ALTER TABLE emp AUTO_INCREMENT = 101;
+
+-- Step 5: Add a new field 'Post' after table creation
+ALTER TABLE emp ADD Post VARCHAR(50);
+
+-- Step 6: Insert sample data
+INSERT INTO emp (Ename, Address, Joindate, Salary, Post)
+VALUES
+('Amit', 'Pune', '2022-06-10', 45000, 'Manager'),
+('Neha', DEFAULT, '2021-03-15', 38000, 'Developer'),
+('Rohan', 'Mumbai', '2020-11-20', 52000, 'Analyst'),
+('Priya', DEFAULT, '2023-01-12', 41000, 'Tester'),
+('Kiran', 'Nashik', '2024-02-05', 60000, 'HR');
+
+-- Step 7: Verify data
+SELECT * FROM emp;
+
+-- Step 8: Create an index on Ename field (for faster searching)
+CREATE INDEX idx_ename ON emp(Ename);
+
+-- Verify index creation
+SHOW INDEX FROM emp;
+
+-- Step 9: Create a view to show only Ename and Salary from emp table
+CREATE OR REPLACE VIEW Emp_View AS
+SELECT Ename, Salary
+FROM emp;
+
+-- Step 10: View data from the created view
+SELECT * FROM Emp_View;
+
+-- **************************************
+-- END OF PRACTICAL 23
+-- **************************************
