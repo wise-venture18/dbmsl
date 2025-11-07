@@ -1,0 +1,118 @@
+CREATE DATABASE TrafficDB;
+USE TrafficDB;
+
+CREATE TABLE Person(
+driver_id NUMBER PRIMARY KEY,
+name VARCHAR2(50),
+address VARCHAR2(100)
+);
+
+CREATE TABLE Car(
+license VARCHAR2(15) PRIMARY KEY,
+model VARCHAR2(30),
+year NUMBER(4)
+);
+
+CREATE TABLE Accident(
+report_no NUMBER PRIMARY KEY,
+date_acc DATE,
+location VARCHAR2(100)
+);
+
+CREATE TABLE Owns(
+driver_id NUMBER,
+license VARCHAR2(15),
+CONSTRAINT fk_owns_driver FOREIGN KEY(driver_id) REFERENCES Person(driver_id),
+CONSTRAINT fk_owns_license FOREIGN KEY(license) REFERENCES Car(license)
+);
+
+CREATE TABLE Participated(
+driver_id NUMBER,
+model VARCHAR2(30),
+report_no NUMBER,
+damage_amount NUMBER(10,2),
+CONSTRAINT fk_part_driver FOREIGN KEY(driver_id) REFERENCES Person(driver_id),
+CONSTRAINT fk_part_report FOREIGN KEY(report_no) REFERENCES Accident(report_no)
+);
+
+INSERT INTO Person VALUES(201,'Yash','Pune');
+INSERT INTO Person VALUES(202,'Amit','Mumbai');
+INSERT INTO Person VALUES(203,'Ravi','Nashik');
+
+INSERT INTO Car VALUES('MH12AB1234','Swift',2020);
+INSERT INTO Car VALUES('MH14XY5678','Baleno',2018);
+INSERT INTO Car VALUES('MH13KL4321','Creta',2022);
+
+INSERT INTO Accident VALUES(6001,TO_DATE('2025-03-12','YYYY-MM-DD'),'Baner');
+INSERT INTO Accident VALUES(6006,TO_DATE('2025-05-22','YYYY-MM-DD'),'Viman Nagar');
+INSERT INTO Accident VALUES(6011,TO_DATE('2024-11-17','YYYY-MM-DD'),'Aundh');
+
+INSERT INTO Owns VALUES(201,'MH12AB1234');
+INSERT INTO Owns VALUES(202,'MH14XY5678');
+INSERT INTO Owns VALUES(203,'MH13KL4321');
+
+INSERT INTO Participated VALUES(201,'Swift',6001,15000);
+INSERT INTO Participated VALUES(202,'Baleno',6006,25000);
+INSERT INTO Participated VALUES(203,'Creta',6011,22000);
+
+CREATE VIEW Driver_Car_View AS
+SELECT p.name AS driver_name,c.model AS car_model
+FROM Person p
+JOIN Owns o ON p.driver_id=o.driver_id
+JOIN Car c ON o.license=c.license;
+
+SELECT * FROM Driver_Car_View;
+
+CREATE OR REPLACE VIEW Driver_Car_View AS
+SELECT p.name AS driver_name,c.model AS car_model,c.year AS car_year
+FROM Person p
+JOIN Owns o ON p.driver_id=o.driver_id
+JOIN Car c ON o.license=c.license;
+
+CREATE SEQUENCE seq_report_no START WITH 6001 INCREMENT BY 5;
+
+CREATE INDEX idx_car_model_year ON Car(model,year);
+
+CREATE VIEW High_Damage_View AS
+SELECT p.name AS driver_name,pa.damage_amount,pa.model
+FROM Person p
+JOIN Participated pa ON p.driver_id=pa.driver_id
+WHERE pa.damage_amount>20000;
+
+CREATE SEQUENCE seq_driver_id START WITH 201 INCREMENT BY 1;
+
+INSERT INTO Person VALUES(seq_driver_id.NEXTVAL,'Rahul','Nagpur');
+
+CREATE INDEX idx_person_name ON Person(name);
+
+DROP INDEX idx_person_name;
+
+CREATE VIEW Recent_Accidents AS
+SELECT * FROM Accident WHERE EXTRACT(YEAR FROM date_acc)=2025;
+
+DROP VIEW Recent_Accidents;
+
+CREATE SYNONYM acc_info FOR Accident;
+
+INSERT INTO acc_info VALUES(seq_report_no.NEXTVAL,TO_DATE('2025-11-07','YYYY-MM-DD'),'Kothrud');
+
+CREATE UNIQUE INDEX unq_license_idx ON Car(license);
+
+CREATE VIEW Cars_After_2019 AS
+SELECT p.name AS driver_name,c.model,c.year
+FROM Person p
+JOIN Owns o ON p.driver_id=o.driver_id
+JOIN Car c ON o.license=c.license
+WHERE c.year>2019;
+
+CREATE SEQUENCE seq_auto_report START WITH 7001 INCREMENT BY 1;
+
+INSERT INTO Accident VALUES(seq_auto_report.NEXTVAL,TO_DATE('2025-12-01','YYYY-MM-DD'),'Shivaji Nagar');
+
+CREATE SYNONYM owns_info FOR Owns;
+
+SELECT p.name,o.license
+FROM Person p
+JOIN owns_info o ON p.driver_id=o.driver_id;
+
+CREATE INDEX idx_damage_amount ON Participated(damage_amount);
