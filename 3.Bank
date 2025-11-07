@@ -1,0 +1,108 @@
+// 3.	Create Customer and Account table and add rows shown below 
+
+// 1) Show the cname, Acc_Type, amount information of customer who is having an saving account.
+// 2. Display the data using Natural, left and right join.
+// 3. Display the information of customers living in the same city as of ‘pooja’.
+// 4. Display the information of account, having less amount than average amount throughout the bank.
+// 5. Display the C_id having maximum amount in account.
+// 6. Display the amount and acc_type of those customers whose amount is the minimum amount of that Acc_type.
+// 7. Display the amount of those accounts whose amount is higher than amount of any saving account amount.
+
+
+// -- 1) Create and use a DB
+CREATE DATABASE bankdb;
+USE bankdb;
+
+// -- 2) Tables
+CREATE TABLE Customer (
+  C_Id   INT PRIMARY KEY,
+  Cname  VARCHAR(50),
+  City   VARCHAR(50)
+);
+
+// -- Keep Account without a FK so we can insert C_Id=11 (used to show RIGHT JOIN)
+CREATE TABLE Account (
+  C_Id    INT,
+  Acc_Type VARCHAR(20),
+  Amount   INT
+);
+
+// -- 3) Seed data (from the question)
+INSERT INTO Customer (C_Id, Cname, City) VALUES
+(1,'John','Nashik'),
+(2,'Seema','Aurangabad'),
+(3,'Amita','Nagar'),
+(4,'Rakesh','Pune'),
+(5,'Samata','Nashik'),
+(6,'Ankita','Chandwad'),
+(7,'Bhavika','Pune'),
+(8,'Deepa','Mumbai'),
+(9,'Nitin','Nagpur'),
+(10,'Pooja','Pune');
+
+INSERT INTO Account (C_Id, Acc_Type, Amount) VALUES
+(1,'Current',5000),
+(2,'Saving',20000),
+(3,'Saving',70000),
+(4,'Saving',50000),
+(6,'Current',35000),
+(7,'Loan',30000),
+(8,'Saving',50000),
+(9,'Saving',90000),
+(10,'Loan',8000),
+(11,'Current',45000);
+
+// -- 4) Q1 Show cname, Acc_Type, Amount for customers having a Saving account
+SELECT c.Cname, a.Acc_Type, a.Amount
+FROM Customer c
+JOIN Account a ON a.C_Id = c.C_Id
+WHERE a.Acc_Type = 'Saving';
+
+// -- 5) Q2 Display data using Natural, Left, Right join
+-- Natural join (joins by same-named columns like C_Id)
+SELECT * 
+FROM Customer NATURAL JOIN Account;
+
+// -- Left join (all customers, even if no account)
+SELECT c.*, a.Acc_Type, a.Amount
+FROM Customer c
+LEFT JOIN Account a ON a.C_Id = c.C_Id;
+
+// -- Right join (all accounts, even if no matching customer like C_Id=11)
+SELECT c.*, a.Acc_Type, a.Amount
+FROM Customer c
+RIGHT JOIN Account a ON a.C_Id = c.C_Id;
+
+// -- 6) Q3 Customers living in the same city as 'Pooja'
+SELECT *
+FROM Customer
+WHERE City = (SELECT City FROM Customer WHERE Cname = 'Pooja');
+
+// -- 7) Q4 Accounts having amount less than the average amount
+SELECT *
+FROM Account
+WHERE Amount < (SELECT AVG(Amount) FROM Account);
+
+// -- 8) Q5 C_Id having maximum amount in Account
+SELECT C_Id, Amount
+FROM Account
+WHERE Amount = (SELECT MAX(Amount) FROM Account);
+
+// -- 9) Q6 Amount and Acc_Type for rows whose amount is the minimum for that Acc_Type
+SELECT a.Acc_Type, a.Amount, a.C_Id
+FROM Account a
+WHERE a.Amount = (
+  SELECT MIN(Amount) FROM Account WHERE Acc_Type = a.Acc_Type
+);
+
+// // -- 10) Q7 Amounts higher than any Saving account amount
+// -- Interpretation usually means higher than all Saving amounts
+// -- Use > MAX(Saving)
+SELECT C_Id, Acc_Type, Amount
+FROM Account
+WHERE Amount > (SELECT MAX(Amount) FROM Account WHERE Acc_Type = 'Saving');
+
+// -- If your evaluator means “greater than at least one Saving amount”, use:
+// -- SELECT C_Id, Acc_Type, Amount
+// -- FROM Account
+// -- WHERE Amount > ANY (SELECT Amount FROM Account WHERE Acc_Type = 'Saving');
