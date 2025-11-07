@@ -1,0 +1,71 @@
+// 💻 Final Code: Practical – Attendance Check (Used Delimiter)
+// -- STEP 1: Select or Create Database
+CREATE DATABASE IF NOT EXISTS trafficdb;
+USE trafficdb;
+
+// -- STEP 2: Create Table
+CREATE TABLE Stud (
+  Roll INT PRIMARY KEY,
+  Att INT,
+  Status VARCHAR(5)
+);
+
+// -- STEP 3: Insert Sample Data
+INSERT INTO Stud VALUES
+(101, 65, NULL),
+(102, 85, NULL),
+(103, 70, NULL);
+
+// -- STEP 4: Create Stored Procedure with Control + Exception Handling
+DELIMITER $$
+
+CREATE PROCEDURE check_attendance()
+BEGIN
+  -- Declare variables and handler
+  DECLARE v_roll INT;
+  DECLARE v_att INT;
+  DECLARE v_status VARCHAR(5);
+  DECLARE no_data CONDITION FOR SQLSTATE '02000';
+
+  DECLARE EXIT HANDLER FOR no_data
+  BEGIN
+    SELECT 'Error: Roll number not found!' AS Message;
+  END;
+
+  -- Simulating user input
+  SET v_roll = 101;
+
+  -- Fetch attendance for the entered roll
+  SELECT Att INTO v_att FROM Stud WHERE Roll = v_roll;
+
+  -- Control structure for condition checking
+  IF v_att < 75 THEN
+    UPDATE Stud SET Status = 'D' WHERE Roll = v_roll;
+    SELECT 'Term not granted' AS Message;
+  ELSE
+    UPDATE Stud SET Status = 'ND' WHERE Roll = v_roll;
+    SELECT 'Term granted' AS Message;
+  END IF;
+END$$
+
+DELIMITER ;
+
+// -- STEP 5: Execute Procedure
+CALL check_attendance();
+
+// -- STEP 6: Verify the Updated Table
+SELECT * FROM Stud;
+
+// ✅ Expected Output
+// When You Run:
+CALL check_attendance();
+
+// Output:
+// +--------------------+
+// | Message            |
+// +--------------------+
+// | Term not granted   |
+// +--------------------+
+
+// After Checking Table:
+SELECT * FROM Stud;
