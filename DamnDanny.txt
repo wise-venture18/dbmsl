@@ -1,0 +1,1606 @@
+Steps to Install MySQL on Ubuntu 24.04 LTS  
+
+#### 1. *Update System Packages*  
+Before starting, ensure your system packages are up-to-date:  
+```bash
+sudo apt update && sudo apt upgrade -y
+```  
+
+#### 2. *Install MySQL Server*  
+Install MySQL using the APT package manager:  
+```bash
+sudo apt install mysql-server -y
+```  
+This will install the latest MySQL server version available in Ubuntu's official repositories.  
+
+#### 3. *Secure MySQL Installation*  
+After installation, run the secure installation script to improve MySQL security:  
+```bash
+sudo mysql_secure_installation
+```  
+You’ll be prompted to set a root password.  
+Follow the on-screen instructions to remove test databases, disable remote root login, and apply other security measures.  
+
+#### 4. *Start and Enable MySQL Service*  
+Ensure the MySQL service is running and set to start automatically on boot:  
+```bash
+sudo systemctl start mysql
+sudo systemctl enable mysql
+```  
+
+#### 5. *Log In to MySQL*  
+Log in as the root user to verify the installation:  
+```bash
+sudo mysql -u root -p
+```  
+Enter the root password you set earlier.  
+
+#### 6. *Test the Installation*  
+Run the following command to check the MySQL version and confirm the installation:  
+```bash
+mysql --version
+```  
+
+
+To run 
+mysql --version
+sudo systemctl start mysql
+sudo systemctl enable mysql
+sudo systemctl status mysql
+=======sudo systemctl restart mysql
+
+sudo mysql -u root -p OR sudo mysql
+
+
+
+
+Mysql -u root -p
+Create database assign2;
+Use ass2;
+
+
+Create table employee(emp_id int, emp_name char(20),em_join_date date, primary key(emp_id));
+
+
+
+MONGODB (To Download https://www.mongodb.com/try/download/community.  Choose Windows, MSI, latest Community Server → Download)
+
+Terminal 1:-
+cd "C:\Program Files\MongoDB\Server\<version>\bin"
+mongod.  OR mongod --dbpath "D:\MongoData\db"
+
+
+
+Terminal 2:-
+mongo
+show dbs
+
+
+
+Practical 1
+
+CREATE DATABASE TransportDB;
+USE TransportDB;
+
+CREATE TABLE Person (
+  driver_id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(50),
+  address VARCHAR(100)
+);
+
+CREATE TABLE Car (
+  license VARCHAR(20) PRIMARY KEY,
+  model VARCHAR(50),
+  year INT
+);
+
+CREATE TABLE Accident (
+  report_no INT PRIMARY KEY,
+  date_acc DATE,
+  location VARCHAR(100)
+);
+
+CREATE TABLE Owns (
+  driver_id INT,
+  license VARCHAR(20),
+  FOREIGN KEY (driver_id) REFERENCES Person(driver_id),
+  FOREIGN KEY (license) REFERENCES Car(license)
+);
+
+CREATE TABLE Participated (
+  driver_id INT,
+  model VARCHAR(50),
+  report_no INT,
+  damage_amount DECIMAL(10,2),
+  FOREIGN KEY (driver_id) REFERENCES Person(driver_id),
+  FOREIGN KEY (report_no) REFERENCES Accident(report_no)
+);
+
+
+
+INSERT INTO Person (name, address) VALUES
+('Ravi', 'Pune'),
+('Sneha', 'Mumbai'),
+('Amit', 'Nashik'),
+('Geeta', 'Nagpur');
+
+INSERT INTO Car VALUES
+('MH12AB1234', 'Swift', 2018),
+('MH14CD5678', 'i20', 2020),
+('MH13EF9876', 'Creta', 2021),
+('MH15GH4321', 'Baleno', 2019);
+
+INSERT INTO Accident VALUES
+(6001, '2024-06-12', 'Pune'),
+(6006, '2025-02-18', 'Mumbai'),
+(6011, '2023-09-15', 'Nashik');
+
+INSERT INTO Owns VALUES
+(1, 'MH12AB1234'),
+(2, 'MH14CD5678'),
+(3, 'MH13EF9876'),
+(4, 'MH15GH4321');
+
+INSERT INTO Participated VALUES
+(1, 'Swift', 6001, 18000),
+(2, 'i20', 6006, 25000),
+(3, 'Creta', 6011, 15000),
+(4, 'Baleno', 6006, 35000);
+
+
+
+CREATE VIEW Driver_Car_View AS
+SELECT p.name AS DriverName, c.model AS CarModel
+FROM Person p
+JOIN Owns o ON p.driver_id = o.driver_id
+JOIN Car c ON o.license = c.license;
+
+
+
+SELECT * FROM Driver_Car_View;
+
+
+CREATE OR REPLACE VIEW Driver_Car_View AS
+SELECT p.name AS DriverName, c.model AS CarModel, c.year AS Year
+FROM Person p
+JOIN Owns o ON p.driver_id = o.driver_id
+JOIN Car c ON o.license = c.license;
+
+
+ALTER TABLE Accident MODIFY report_no INT AUTO_INCREMENT;
+ALTER TABLE Accident AUTO_INCREMENT = 6001;
+
+
+CREATE INDEX idx_model_year ON Car(model, year);
+
+
+CREATE VIEW HighDamageDrivers AS
+SELECT p.name, pa.damage_amount
+FROM Person p
+JOIN Participated pa ON p.driver_id = pa.driver_id
+WHERE pa.damage_amount > 20000;
+
+
+INSERT INTO Person (name, address) VALUES ('Kiran', 'Aurangabad');
+CREATE INDEX idx_person_name ON Person(name);
+
+
+DROP INDEX idx_person_name ON Person;
+
+
+CREATE VIEW Recent_Accidents AS
+SELECT * FROM Accident
+WHERE YEAR(date_acc) = 2025;
+
+
+DROP VIEW Recent_Accidents;
+
+
+CREATE VIEW acc_info AS SELECT * FROM Accident;
+
+
+INSERT INTO acc_info (date_acc, location)
+VALUES ('2025-06-20', 'Nashik');
+
+
+CREATE UNIQUE INDEX idx_license_unique ON Car(license);
+
+
+CREATE VIEW NewCars AS
+SELECT p.name, c.model, c.year
+FROM Person p
+JOIN Owns o ON p.driver_id = o.driver_id
+JOIN Car c ON o.license = c.license
+WHERE c.year > 2019;
+
+
+INSERT INTO Accident (date_acc, location)
+VALUES (CURDATE(), 'Pune');
+
+
+CREATE VIEW owns_info AS SELECT * FROM Owns;
+SELECT p.name, c.model
+FROM Person p
+JOIN owns_info o ON p.driver_id = o.driver_id
+JOIN Car c ON o.license = c.license;
+
+
+CREATE INDEX idx_damage_amount ON Participated(damage_amount);
+
+
+
+
+Practical 2
+-- First, create the table if not exists
+CREATE TABLE Stud (
+    Roll INT PRIMARY KEY,
+    Att DECIMAL(5,2),
+    Status CHAR(2)
+);
+
+-- Sample data
+INSERT INTO Stud VALUES (1, 80, NULL);
+INSERT INTO Stud VALUES (2, 65, NULL);
+INSERT INTO Stud VALUES (3, 90, NULL);
+
+-- Now write the MySQL procedure block
+DELIMITER $$
+
+CREATE PROCEDURE CheckAttendance(IN roll_no INT)
+BEGIN
+    DECLARE attendance DECIMAL(5,2);
+    DECLARE not_found CONDITION FOR SQLSTATE '02000';
+    DECLARE EXIT HANDLER FOR not_found 
+    BEGIN
+        SELECT 'No student found with the entered Roll No.' AS Message;
+    END;
+
+    -- Try to get the student's attendance
+    SELECT Att INTO attendance 
+    FROM Stud 
+    WHERE Roll = roll_no;
+
+    -- Control structure to check attendance
+    IF attendance < 75 THEN
+        UPDATE Stud 
+        SET Status = 'D'
+        WHERE Roll = roll_no;
+        SELECT 'Term not granted' AS Message;
+    ELSE
+        UPDATE Stud 
+        SET Status = 'ND'
+        WHERE Roll = roll_no;
+        SELECT 'Term granted' AS Message;
+    END IF;
+
+END$$
+
+DELIMITER ;
+CALL CheckAttendance(2);   -- Roll 2 has 65% attendance → Term not granted
+CALL CheckAttendance(3);   -- Roll 3 has 90% attendance → Term granted
+CALL CheckAttendance(5);   -- Roll not found → Exception handled
+
+Practical 3
+
+CREATE TABLE Customer (
+  C_Id INT PRIMARY KEY,
+  Cname VARCHAR(50),
+  City VARCHAR(50)
+);
+
+CREATE TABLE Account (
+  C_Id INT,
+  Acc_Type VARCHAR(20),
+  Amount DECIMAL(10,2),
+  FOREIGN KEY (C_Id) REFERENCES Customer(C_Id)
+);
+
+INSERT INTO Customer VALUES
+(1, 'John', 'Nashik'),
+(2, 'Seema', 'Aurangabad'),
+(3, 'Amita', 'Nagar'),
+(4, 'Rakesh', 'Pune'),
+(5, 'Samata', 'Nashik'),
+(6, 'Ankita', 'Chandwad'),
+(7, 'Bhavika', 'Pune'),
+(8, 'Deepa', 'Mumbai'),
+(9, 'Nitin', 'Nagpur'),
+(10, 'Pooja', 'Pune');
+
+INSERT INTO Account VALUES
+(1, 'Current', 5000),
+(2, 'Saving', 20000),
+(3, 'Saving', 70000),
+(4, 'Saving', 50000),
+(6, 'Current', 35000),
+(7, 'Loan', 30000),
+(8, 'Saving', 50000),
+(9, 'Saving', 90000),
+(10, 'Loan', 8000),
+(11, 'Current', 45000);
+
+
+SELECT c.Cname, a.Acc_Type, a.Amount
+FROM Customer c
+JOIN Account a ON c.C_Id = a.C_Id
+WHERE a.Acc_Type = 'Saving';
+
+
+SELECT * FROM Customer NATURAL JOIN Account;
+
+
+SELECT * FROM Customer c LEFT JOIN Account a ON c.C_Id = a.C_Id;
+
+
+SELECT * FROM Customer c RIGHT JOIN Account a ON c.C_Id = a.C_Id;
+
+
+SELECT * FROM Customer
+WHERE City = (SELECT City FROM Customer WHERE Cname = 'Pooja');
+
+
+SELECT * FROM Account
+WHERE Amount < (SELECT AVG(Amount) FROM Account);
+
+
+SELECT C_Id
+FROM Account
+WHERE Amount = (SELECT MAX(Amount) FROM Account);
+
+
+SELECT a.C_Id, a.Acc_Type, a.Amount
+FROM Account a
+WHERE a.Amount = (
+    SELECT MIN(Amount)
+    FROM Account
+    WHERE Acc_Type = a.Acc_Type
+);
+
+
+SELECT *
+FROM Account
+WHERE Amount > ANY (SELECT Amount FROM Account WHERE Acc_Type = 'Saving');
+
+
+
+
+
+Practical 4
+CREATE TABLE Borrower (
+    Rollin INT,
+    Name VARCHAR(50),
+    DateofIssue DATE,
+    NameofBook VARCHAR(100),
+    Status CHAR(1)   -- I = Issued, R = Returned
+);
+
+CREATE TABLE Fine (
+    Roll_no INT,
+    Date DATE,
+    Amt DECIMAL(10,2)
+);
+
+INSERT INTO Borrower VALUES (1, 'Amit', '2025-10-01', 'C Programming', 'I');
+INSERT INTO Borrower VALUES (2, 'Riya', '2025-09-20', 'DBMS', 'I');
+INSERT INTO Borrower VALUES (3, 'Karan', '2025-10-25', 'Operating Systems', 'I');
+
+DELIMITER $$
+
+CREATE PROCEDURE CheckFine(
+    IN p_roll_no INT,
+    IN p_book_name VARCHAR(100)
+)
+BEGIN
+    DECLARE issue_date DATE;
+    DECLARE no_of_days INT;
+    DECLARE fine_amt DECIMAL(10,2) DEFAULT 0;
+    DECLARE not_found CONDITION FOR SQLSTATE '02000';
+
+    -- Exception Handling: No Record Found
+    DECLARE EXIT HANDLER FOR not_found
+    BEGIN
+        SELECT 'No matching record found for the given Roll No and Book Name.' AS Message;
+    END;
+
+    -- Get Date of Issue
+    SELECT DateofIssue INTO issue_date
+    FROM Borrower
+    WHERE Rollin = p_roll_no AND NameofBook = p_book_name AND Status = 'I';
+
+    -- Calculate number of days from issue date
+    SET no_of_days = DATEDIFF(CURDATE(), issue_date);
+
+    -- Control Structure for Fine Calculation
+    IF no_of_days > 30 THEN
+        SET fine_amt = no_of_days * 50;
+    ELSEIF no_of_days >= 15 AND no_of_days <= 30 THEN
+        SET fine_amt = no_of_days * 5;
+    ELSE
+        SET fine_amt = 0;
+    END IF;
+
+    -- Update Book Status (Issued → Returned)
+    UPDATE Borrower
+    SET Status = 'R'
+    WHERE Rollin = p_roll_no AND NameofBook = p_book_name;
+
+    -- Insert Fine Record if Applicable
+    IF fine_amt > 0 THEN
+        INSERT INTO Fine VALUES (p_roll_no, CURDATE(), fine_amt);
+        SELECT CONCAT('Book Returned with Fine = Rs ', fine_amt) AS Message;
+    ELSE
+        SELECT 'Book Returned. No Fine Applied.' AS Message;
+    END IF;
+
+END$$
+
+DELIMITER ;
+
+CALL CheckFine(1, 'C Programming');  -- Check for roll no 1
+CALL CheckFine(2, 'DBMS');           -- Check for roll no 2
+CALL CheckFine(3, 'Operating Systems');  -- Check for roll no 3
+
+
+SELECT * FROM Borrower;
+SELECT * FROM Fine;
+
+
+Practical 5
+
+CREATE TABLE student (
+    S_ID INT PRIMARY KEY,
+    name VARCHAR(50),
+    dept_name VARCHAR(50),
+    tot_cred INT
+);
+
+CREATE TABLE instructor (
+    T_ID INT PRIMARY KEY,
+    name VARCHAR(50),
+    dept_name VARCHAR(50),
+    salary DECIMAL(10,2)
+);
+
+CREATE TABLE course (
+    course_id INT PRIMARY KEY,
+    title VARCHAR(50),
+    dept_name VARCHAR(50),
+    credits INT
+);
+
+
+INSERT INTO student VALUES 
+(1, 'Amol', 'Computer', 80),
+(2, 'Amit', 'IT', 70),
+(3, 'Samantha', 'Computer', 85),
+(4, 'Kamlesh', 'Mechanical', 60),
+(5, 'Ram', 'Computer', 90),
+(6, 'Anamika', 'Electrical', 75);
+
+INSERT INTO instructor VALUES 
+(101, 'Ravi', 'Computer', 45000),
+(102, 'Sneha', 'IT', 40000),
+(103, 'Raj', 'Mechanical', 46000),
+(104, 'Pooja', 'Computer', 42000),
+(105, 'Anil', 'Electrical', 39000);
+
+INSERT INTO course VALUES 
+(501, 'DBMS', 'Computer', 4),
+(502, 'CN', 'Computer', 3),
+(503, 'Thermodynamics', 'Mechanical', 3),
+(504, 'Digital Circuits', 'Electrical', 3);
+
+
+SELECT dept_name, AVG(salary) AS avg_salary
+FROM instructor
+GROUP BY dept_name
+HAVING AVG(salary) > 42000;
+
+
+UPDATE instructor
+SET salary = salary * 1.10
+WHERE dept_name = 'Computer';
+
+
+SELECT name 
+FROM instructor
+WHERE name NOT IN ('Amol', 'Amit');
+
+
+SELECT name 
+FROM student
+WHERE name LIKE '%am%';
+
+
+CREATE TABLE takes (
+    S_ID INT,
+    course_id INT,
+    FOREIGN KEY (S_ID) REFERENCES student(S_ID),
+    FOREIGN KEY (course_id) REFERENCES course(course_id)
+);
+
+-- Sample course enrollment data
+INSERT INTO takes VALUES 
+(1, 501),
+(3, 501),
+(5, 501),
+(6, 504),
+(2, 502);
+
+
+SELECT s.name
+FROM student s
+JOIN takes t ON s.S_ID = t.S_ID
+JOIN course c ON t.course_id = c.course_id
+WHERE s.dept_name = 'Computer'
+  AND c.title = 'DBMS';
+
+
+Practical 6
+
+CREATE TABLE O_RollCall (
+    RollNo INT PRIMARY KEY,
+    Name VARCHAR(50),
+    Dept VARCHAR(50)
+);
+
+CREATE TABLE N_RollCall (
+    RollNo INT,
+    Name VARCHAR(50),
+    Dept VARCHAR(50)
+);
+
+
+-- Old data
+INSERT INTO O_RollCall VALUES (1, 'Amit', 'Computer');
+INSERT INTO O_RollCall VALUES (2, 'Riya', 'IT');
+INSERT INTO O_RollCall VALUES (3, 'Karan', 'Mechanical');
+
+-- New data
+INSERT INTO N_RollCall VALUES (2, 'Riya', 'IT');       -- Duplicate (exists)
+INSERT INTO N_RollCall VALUES (3, 'Karan', 'Mechanical'); -- Duplicate
+INSERT INTO N_RollCall VALUES (4, 'Sneha', 'Computer');   -- New
+INSERT INTO N_RollCall VALUES (5, 'Rahul', 'Computer');   -- New
+
+
+
+DELIMITER $$
+
+CREATE PROCEDURE MergeRollCall(IN p_dept VARCHAR(50))
+BEGIN
+    DECLARE v_RollNo INT;
+    DECLARE v_Name VARCHAR(50);
+    DECLARE v_Dept VARCHAR(50);
+    DECLARE done INT DEFAULT 0;
+
+    -- Cursor (Parameterized by Department)
+    DECLARE cur_N CURSOR FOR 
+        SELECT RollNo, Name, Dept
+        FROM N_RollCall
+        WHERE Dept = p_dept;
+
+    -- Exception handler for end of data
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+
+    OPEN cur_N;
+
+    read_loop: LOOP
+        FETCH cur_N INTO v_RollNo, v_Name, v_Dept;
+        IF done = 1 THEN
+            LEAVE read_loop;
+        END IF;
+
+        -- Check if RollNo already exists in old table
+        IF NOT EXISTS (SELECT 1 FROM O_RollCall WHERE RollNo = v_RollNo) THEN
+            INSERT INTO O_RollCall (RollNo, Name, Dept)
+            VALUES (v_RollNo, v_Name, v_Dept);
+        ELSE
+            -- Skip duplicate record (optional message)
+            SELECT CONCAT('Skipping RollNo ', v_RollNo, ' - Already Exists') AS Message;
+        END IF;
+    END LOOP;
+
+    CLOSE cur_N;
+
+    SELECT 'Data Merge Completed Successfully!' AS Result;
+END$$
+
+DELIMITER ;
+
+
+CALL MergeRollCall('Computer');
+
+
+
+
+
+SELECT * FROM O_RollCall;
+
+
+Practical 7
+
+CREATE TABLE Stud_Marks (
+    Roll INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(50),
+    Total_Marks INT
+);
+
+CREATE TABLE Result (
+    Roll INT,
+    Name VARCHAR(50),
+    Class VARCHAR(30)
+);
+
+
+INSERT INTO Stud_Marks (Name, Total_Marks) VALUES
+('Amit', 1200),
+('Riya', 950),
+('Karan', 880),
+('Sneha', 810),
+('Rohit', 1000);
+
+
+DELIMITER $$
+
+CREATE PROCEDURE proc_Grade()
+BEGIN
+    DECLARE v_Roll INT;
+    DECLARE v_Name VARCHAR(50);
+    DECLARE v_Marks INT;
+    DECLARE v_Class VARCHAR(30);
+    DECLARE done INT DEFAULT 0;
+
+    -- Cursor to fetch each student
+    DECLARE cur CURSOR FOR
+        SELECT Roll, Name, Total_Marks FROM Stud_Marks;
+
+    -- Handler for end of records
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+
+    -- Open cursor
+    OPEN cur;
+
+    read_loop: LOOP
+        FETCH cur INTO v_Roll, v_Name, v_Marks;
+        IF done = 1 THEN
+            LEAVE read_loop;
+        END IF;
+
+        -- Control Structure for Grade Classification
+        IF v_Marks BETWEEN 990 AND 1500 THEN
+            SET v_Class = 'Distinction';
+        ELSEIF v_Marks BETWEEN 900 AND 989 THEN
+            SET v_Class = 'First Class';
+        ELSEIF v_Marks BETWEEN 825 AND 899 THEN
+            SET v_Class = 'Higher Second Class';
+        ELSE
+            SET v_Class = 'Fail';
+        END IF;
+
+        -- Insert Result
+        INSERT INTO Result (Roll, Name, Class)
+        VALUES (v_Roll, v_Name, v_Class);
+    END LOOP;
+
+    CLOSE cur;
+
+    SELECT 'Grading Completed Successfully!' AS Message;
+END$$
+
+DELIMITER ;
+
+
+CALL proc_Grade();
+
+
+SELECT * FROM Result;
+
+
+
+
+Practical 8
+
+
+CREATE TABLE areas (
+    radius NUMBER(5,2),
+    area   NUMBER(10,2)
+);
+
+
+SET SERVEROUTPUT ON;
+
+DECLARE
+    v_radius NUMBER(5,2);
+    v_area   NUMBER(10,2);
+    pi_value CONSTANT NUMBER := 3.14159;
+BEGIN
+    -- Loop from radius 5 to 9
+    FOR v_radius IN 5..9 LOOP
+        v_area := pi_value * v_radius * v_radius;
+
+        -- Insert each radius and area into the table
+        INSERT INTO areas(radius, area)
+        VALUES (v_radius, v_area);
+
+        -- Display output
+        DBMS_OUTPUT.PUT_LINE('Radius: ' || v_radius || ' -> Area: ' || v_area);
+    END LOOP;
+
+    COMMIT;
+END;
+/
+
+
+SELECT * FROM areas;
+
+
+Practical 9
+
+CREATE TABLE Library (
+    Book_ID INT PRIMARY KEY,
+    Book_Name VARCHAR(100),
+    Author VARCHAR(100),
+    Price DECIMAL(10,2),
+    Quantity INT
+);
+
+
+CREATE TABLE Library_Audit (
+    Audit_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Book_ID INT,
+    Book_Name VARCHAR(100),
+    Author VARCHAR(100),
+    Price DECIMAL(10,2),
+    Quantity INT,
+    Operation_Type VARCHAR(20),
+    Operation_Date DATETIME DEFAULT NOW()
+);
+
+
+DELIMITER $$
+
+CREATE TRIGGER trg_Library_Update
+AFTER UPDATE ON Library
+FOR EACH ROW
+BEGIN
+    INSERT INTO Library_Audit (Book_ID, Book_Name, Author, Price, Quantity, Operation_Type)
+    VALUES (OLD.Book_ID, OLD.Book_Name, OLD.Author, OLD.Price, OLD.Quantity, 'UPDATE');
+END$$
+
+DELIMITER ;
+
+
+DELIMITER $$
+
+CREATE TRIGGER trg_Library_Delete
+AFTER DELETE ON Library
+FOR EACH ROW
+BEGIN
+    INSERT INTO Library_Audit (Book_ID, Book_Name, Author, Price, Quantity, Operation_Type)
+    VALUES (OLD.Book_ID, OLD.Book_Name, OLD.Author, OLD.Price, OLD.Quantity, 'DELETE');
+END$$
+
+DELIMITER ;
+
+
+DELIMITER $$
+
+CREATE TRIGGER trg_Library_Insert
+AFTER INSERT ON Library
+FOR EACH ROW
+BEGIN
+    INSERT INTO Library_Audit (Book_ID, Book_Name, Author, Price, Quantity, Operation_Type)
+    VALUES (NEW.Book_ID, NEW.Book_Name, NEW.Author, NEW.Price, NEW.Quantity, 'INSERT');
+END$$
+
+DELIMITER ;
+
+
+
+
+Practical 10
+
+use ordersDB
+
+db.createCollection("orderinfo")
+
+db.orderinfo.insertMany([
+    { cust_id: 123, cust_name: "abc", status: "A", price: 250 },
+    { cust_id: 124, cust_name: "xyz", status: "A", price: 400 },
+    { cust_id: 125, cust_name: "pqr", status: "B", price: 1200 },
+    { cust_id: 126, cust_name: "lmn", status: "A", price: 800 }
+])
+
+db.orderinfo.aggregate([
+    { $match: { status: "A" } },
+    { $group: { _id: "$cust_id", avg_price: { $avg: "$price" } } }
+])
+
+
+db.orderinfo.find(
+    { price: { $gte: 100, $lte: 1000 } },
+    { _id: 0, cust_name: 1, status: 1, price: 1 }
+)
+
+
+db.orderinfo.find({}, { _id: 0 })
+
+
+db.orderinfo.createIndex({ cust_id: 1 })
+
+
+db.orderinfo.getIndexes()
+
+db.orderinfo.find({ cust_id: 123 }).explain("executionStats")
+
+
+Practical 11
+
+use moviedb
+
+db.createCollection("movies")
+
+db.movies.insertMany([
+    {
+        name: "Movie1",
+        type: "action",
+        budget: 1000000,
+        producer: {
+            name: "producer1",
+            address: "PUNE"
+        }
+    },
+    {
+        name: "Movie2",
+        type: "romance",
+        budget: 500000,
+        producer: {
+            name: "producer2",
+            address: "MUMBAI"
+        }
+    },
+    {
+        name: "Movie3",
+        type: "action",
+        budget: 2000000,
+        producer: {
+            name: "producer1",
+            address: "PUNE"
+        }
+    }
+])
+
+db.movies.find(
+    { budget: { $gt: 100000 } },
+    { _id: 0, name: 1, budget: 1 }
+)
+
+
+db.movies.find(
+    { "producer.address": "PUNE" },
+    { _id: 0, "producer.name": 1 }
+)
+
+db.movies.updateMany(
+    { type: "action" },
+    { $set: { type: "horror" } }
+)
+
+db.movies.find({}, { _id: 0, name: 1, type: 1 })
+
+
+db.movies.find(
+    { "producer.name": "producer1" },
+    { _id: 0, name: 1, "producer.name": 1, "producer.address": 1 }
+)
+
+
+
+Practical 12
+
+use collegeDB
+
+db.createCollection("Teachers")
+
+db.Teachers.insertMany([
+    { Tname: "Amit", dno: 1, Experience: 5, Salary: 12000, Date_of_Joining: "2018-06-12" },
+    { Tname: "Priya", dno: 2, Experience: 8, Salary: 18000, Date_of_Joining: "2016-03-20" },
+    { Tname: "Suresh", dno: 2, Experience: 10, Salary: 9000, Date_of_Joining: "2015-07-01" },
+    { Tname: "Nikita", dno: 3, Experience: 4, Salary: 15000, Date_of_Joining: "2019-10-25" }
+])
+
+
+
+db.createCollection("Department")
+
+db.Department.insertMany([
+    { Dno: 1, Dname: "Computer" },
+    { Dno: 2, Dname: "Mechanical" },
+    { Dno: 3, Dname: "Civil" }
+])
+
+
+db.createCollection("Students")
+
+db.Students.insertMany([
+    { Sname: "Rohit", Roll_No: 1, Class: "FE" },
+    { Sname: "xyz", Roll_No: 2, Class: "SE" },
+    { Sname: "Anjali", Roll_No: 3, Class: "TE" },
+    { Sname: "Karan", Roll_No: 4, Class: "BE" },
+    { Sname: "Meera", Roll_No: 5, Class: "FE" }
+])
+
+
+
+db.Teachers.find(
+    { dno: 2, Salary: { $gte: 10000 } },
+    { _id: 0, Tname: 1, dno: 1, Salary: 1, Experience: 1 }
+)
+
+
+
+db.Students.updateOne(
+    { Roll_No: 5 },
+    { $set: { Sname: "Meera Shah" } }
+)
+
+db.Students.deleteMany({ Class: "FE" })
+
+
+db.Students.createIndex({ Roll_No: 1 })
+
+
+Practical 13
+
+use department
+
+
+db.createCollection("teacher")
+
+db.teacher.insertMany([
+    { name: "Amit", department: "Computer", experience: 5, salary: 40000 },
+    { name: "Neha", department: "Computer", experience: 8, salary: 55000 },
+    { name: "Ravi", department: "Mechanical", experience: 6, salary: 42000 },
+    { name: "Priya", department: "Mechanical", experience: 10, salary: 60000 },
+    { name: "Karan", department: "Civil", experience: 4, salary: 38000 },
+    { name: "Sonia", department: "Civil", experience: 7, salary: 45000 }
+])
+
+
+db.teacher.aggregate([
+    { 
+        $group: { 
+            _id: "$department", 
+            avg_salary: { $avg: "$salary" } 
+        } 
+    }
+])
+
+
+db.teacher.aggregate([
+    { 
+        $group: { 
+            _id: "$department", 
+            total_employees: { $sum: 1 } 
+        } 
+    }
+])
+
+
+db.teacher.aggregate([
+    { 
+        $group: { 
+            _id: "$department", 
+            min_salary: { $min: "$salary" } 
+        } 
+    }
+])
+
+
+db.teacher.createIndex({ department: 1 })
+
+
+db.teacher.getIndexes()
+
+db.teacher.dropIndex("department_1")
+
+
+Practical 14
+
+
+use citydb
+
+db.city.insertMany([
+  { city: "pune", type: "urban", state: "MH", population: 5600000 },
+  { city: "nagpur", type: "urban", state: "MH", population: 3000000 },
+  { city: "nashik", type: "semi-urban", state: "MH", population: 1700000 },
+  { city: "surat", type: "urban", state: "GJ", population: 6000000 },
+  { city: "ahmedabad", type: "urban", state: "GJ", population: 8000000 },
+  { city: "rajkot", type: "semi-urban", state: "GJ", population: 1500000 },
+  { city: "bengaluru", type: "urban", state: "KA", population: 8400000 },
+  { city: "mysuru", type: "semi-urban", state: "KA", population: 1200000 }
+])
+
+var mapState = function() {
+  emit(this.state, this.population);
+};
+
+var reduceState = function(key, values) {
+  return Array.sum(values);
+};
+
+db.city.mapReduce(
+  mapState,
+  reduceState,
+  { out: "statewise_population" }
+)
+
+db.statewise_population.find().pretty()
+
+
+
+
+var mapCity = function() {
+  emit(this.city, this.population);
+};
+
+var reduceCity = function(key, values) {
+  return Array.sum(values);
+};
+
+db.city.mapReduce(
+  mapCity,
+  reduceCity,
+  { out: "citywise_population" }
+)
+
+db.citywise_population.find().pretty()
+
+
+
+
+var mapType = function() {
+  emit(this.type, this.population);
+};
+
+var reduceType = function(key, values) {
+  return Array.sum(values);
+};
+
+db.city.mapReduce(
+  mapType,
+  reduceType,
+  { out: "typewise_population" }
+)
+
+db.typewise_population.find().pretty()
+
+
+
+Practical 15
+
+
+use collegeDB
+
+db.Student.insertMany([
+  { Rollno: 1, name: 'Navin', subject: 'DMSA', marks: 78 },
+  { Rollno: 2, name: 'Anusha', subject: 'OSD', marks: 75 },
+  { Rollno: 3, name: 'Ravi', subject: 'TOC', marks: 69 },
+  { Rollno: 4, name: 'Veena', subject: 'TOC', marks: 70 },
+  { Rollno: 5, name: 'Pravini', subject: 'OSD', marks: 80 },
+  { Rollno: 6, name: 'Reena', subject: 'DMSA', marks: 50 },
+  { Rollno: 7, name: 'Geeta', subject: 'CN', marks: 90 },
+  { Rollno: 8, name: 'Akash', subject: 'CN', marks: 85 }
+])
+
+
+db.Student.aggregate([
+  { $group: { _id: "$subject", MaxMarks: { $max: "$marks" } } }
+])
+
+
+db.Student.aggregate([
+  { $group: { _id: "$subject", MinMarks: { $min: "$marks" } } }
+])
+
+
+db.Student.aggregate([
+  { $group: { _id: "$subject", TotalMarks: { $sum: "$marks" } } }
+])
+
+
+db.Student.aggregate([
+  { $group: { _id: "$subject", AvgMarks: { $avg: "$marks" } } }
+])
+
+
+db.Student.aggregate([
+  { $sort: { subject: 1, Rollno: 1 } },
+  { $group: { _id: "$subject", FirstRecord: { $first: "$$ROOT" } } }
+])
+
+
+db.Student.aggregate([
+  { $sort: { subject: 1, Rollno: 1 } },
+  { $group: { _id: "$subject", LastRecord: { $last: "$$ROOT" } } }
+])
+
+
+db.Student.aggregate([
+  { $group: { _id: "$subject", Count: { $sum: 1 } } }
+])
+
+
+Practical 16
+
+
+use employee
+
+db.computer.insertMany([
+  { name: "John", department: "Computer", Salary: 50000 },
+  { name: "Amit", department: "Computer", Salary: 60000 },
+  { name: "Sara", department: "Computer", Salary: 55000 },
+  { name: "Neha", department: "Computer", Salary: 65000 }
+])
+
+
+var mapFunction = function() {
+  emit("total", this.Salary);
+};
+
+
+var reduceFunction = function(key, values) {
+  return Array.sum(values);
+};
+
+
+db.computer.mapReduce(
+  mapFunction,
+  reduceFunction,
+  { out: "total_salary" }
+)
+
+
+db.total_salary.find().pretty()
+
+
+Practical 17
+
+use salesDB
+
+db.orderinfo.insertMany([
+  { cust_id: 123, cust_name: "abc", status: "A", price: 250 },
+  { cust_id: 124, cust_name: "xyz", status: "B", price: 400 },
+  { cust_id: 125, cust_name: "pqr", status: "A", price: 500 }
+])
+
+
+db.orderinfo.find(
+  { price: { $gte: 250, $lte: 450 } },
+  { cust_name: 1, _id: 0 }
+)
+
+
+db.orderinfo.updateOne(
+  { cust_id: 123 },
+  { $inc: { price: 10 } }
+)
+
+db.orderinfo.updateOne(
+  { cust_id: 124 },
+  { $inc: { price: -5 } }
+)
+
+
+db.orderinfo.updateMany({}, { $unset: { status: "" } })
+
+
+db.orderinfo.find(
+  { $or: [ { status: "A" }, { price: 250 } ] },
+  { cust_name: 1, _id: 0 }
+)
+
+Practical 18
+
+CREATE DATABASE companyDB;
+USE companyDB;
+
+
+CREATE TABLE Emp (
+  emp_id INT PRIMARY KEY,
+  ename VARCHAR(50),
+  street VARCHAR(50),
+  city VARCHAR(50)
+);
+
+CREATE TABLE Company (
+  c_id INT PRIMARY KEY,
+  cname VARCHAR(50),
+  city VARCHAR(50)
+);
+
+CREATE TABLE Works (
+  emp_id INT,
+  c_id INT,
+  ename VARCHAR(50),
+  cname VARCHAR(50),
+  sal DECIMAL(10,2),
+  FOREIGN KEY (emp_id) REFERENCES Emp(emp_id),
+  FOREIGN KEY (c_id) REFERENCES Company(c_id)
+);
+
+CREATE TABLE Manager (
+  mgr_id INT PRIMARY KEY,
+  mgrname VARCHAR(50)
+);
+
+
+INSERT INTO Emp VALUES
+(1, 'Rahul', 'MG Road', 'Mumbai'),
+(2, 'Sneha', 'FC Road', 'Pune'),
+(3, 'Amit', 'Main St', 'Delhi');
+
+INSERT INTO Company VALUES
+(101, 'ABC', 'Mumbai'),
+(102, 'Mbank', 'Delhi'),
+(103, 'Bosch', 'Pune'),
+(104, 'SBC', 'Pune');
+
+INSERT INTO Works VALUES
+(1, 101, 'Rahul', 'ABC', 18000),
+(2, 102, 'Sneha', 'Mbank', 22000),
+(3, 103, 'Amit', 'Bosch', 30000),
+(1, 104, 'Rahul', 'SBC', 52000);
+
+INSERT INTO Manager VALUES
+(1, 'Manager1'),
+(2, 'Manager2');
+
+
+
+UPDATE Company
+SET city = 'Pune'
+WHERE cname = 'ABC';
+
+
+UPDATE Works
+SET sal = 
+  CASE
+    WHEN sal <= 20000 THEN sal * 1.10
+    ELSE sal * 1.03
+  END
+WHERE cname = 'Mbank';
+
+
+SELECT e.ename
+FROM Emp e
+JOIN Works w ON e.emp_id = w.emp_id
+JOIN Company c ON w.c_id = c.c_id
+WHERE c.cname = 'Bosch' AND c.city = 'Pune';
+
+
+DELETE FROM Works
+WHERE cname = 'SBC' AND sal > 50000;
+
+
+
+Practical 19
+
+use Employee
+
+
+db.createCollection("emp1")
+
+db.emp1.insertMany([
+  { eno: 101, ename: "Navin", address: "Pune", sal: 12000 },
+  { eno: 102, ename: "Anita", address: "Mumbai", sal: 8000 },
+  { eno: 103, ename: "Ravi", address: "Delhi", sal: 4500 },
+  { eno: 104, ename: "Neha", address: "Chennai", sal: 18000 },
+  { eno: 105, ename: "Kiran", address: "Pune", sal: 22000 }
+])
+
+
+db.emp1.find().pretty()
+
+
+db.emp1.find({ sal: { $gt: 5000 } })
+
+
+db.emp1.find({ sal: { $lt: 15000 } })
+
+
+db.emp1.find({ sal: { $gt: 10000, $lt: 20000 } })
+
+
+db.emp1.updateMany({}, { $mul: { sal: 1.10 } })
+
+
+db.emp1.deleteMany({ sal: { $lt: 5000 } })
+
+db.emp1.renameCollection("employee1")
+
+db.employee1.find({ ename: { $regex: /^N/i } })
+db.employee1.find().sort({ ename: 1 })
+
+
+use Employee1
+
+
+use Employee
+db.dropDatabase()
+
+db.emp1.insertOne({ eno: 201, ename: "Rohan", address: "Nashik", sal: 15000 })
+
+db.emp1.drop()
+
+
+Practical 20
+
+
+CREATE TABLE Empl (
+    e_no INT PRIMARY KEY,
+    e_name VARCHAR(50),
+    post VARCHAR(50),
+    pay_rate DECIMAL(10,2)
+);
+
+CREATE TABLE Position (
+    pos_no INT PRIMARY KEY,
+    post VARCHAR(50)
+);
+
+CREATE TABLE Duty_alloc (
+    pos_no INT,
+    e_no INT,
+    month VARCHAR(20),
+    year INT,
+    shift INT,
+    FOREIGN KEY (pos_no) REFERENCES Position(pos_no),
+    FOREIGN KEY (e_no) REFERENCES Empl(e_no)
+);
+
+
+SELECT *
+FROM Duty_alloc
+WHERE e_no = 123
+  AND shift = 1
+  AND month = 'April'
+  AND year = 2003;
+
+
+SELECT *
+FROM Empl
+WHERE pay_rate >= (
+    SELECT pay_rate
+    FROM Empl
+    WHERE e_name = 'Sachin'
+);
+
+
+CREATE VIEW SalarySummary AS
+SELECT 
+    post,
+    MIN(pay_rate) AS Min_Salary,
+    MAX(pay_rate) AS Max_Salary,
+    AVG(pay_rate) AS Avg_Salary
+FROM Empl
+GROUP BY post;
+
+
+
+
+SELECT 
+    D.shift,
+    COUNT(DISTINCT D.e_no) AS Employee_Count
+FROM Duty_alloc D
+JOIN Position P ON D.pos_no = P.pos_no
+JOIN Empl E ON D.e_no = E.e_no
+WHERE P.post = 'manager'
+GROUP BY D.shift;
+
+
+
+Practical 21
+
+
+CREATE TABLE Employee (
+    employee_name VARCHAR(50) PRIMARY KEY,
+    street VARCHAR(50),
+    city VARCHAR(50)
+);
+
+CREATE TABLE Works (
+    employee_name VARCHAR(50),
+    company_name VARCHAR(50),
+    salary DECIMAL(10,2),
+    FOREIGN KEY (employee_name) REFERENCES Employee(employee_name)
+);
+
+CREATE TABLE Company (
+    company_name VARCHAR(50) PRIMARY KEY,
+    city VARCHAR(50)
+);
+
+CREATE TABLE Manages (
+    employee_name VARCHAR(50),
+    manager_name VARCHAR(50),
+    FOREIGN KEY (employee_name) REFERENCES Employee(employee_name),
+    FOREIGN KEY (manager_name) REFERENCES Employee(employee_name)
+);
+
+
+SELECT employee_name
+FROM Works
+WHERE company_name = 'First Bank Corporation';
+
+
+SELECT E.employee_name, E.city
+FROM Employee E
+JOIN Works W ON E.employee_name = W.employee_name
+WHERE W.company_name = 'First Bank Corporation';
+
+
+SELECT E.employee_name, E.street, E.city
+FROM Employee E
+JOIN Works W ON E.employee_name = W.employee_name
+WHERE W.company_name = 'First Bank Corporation'
+  AND W.salary > 10000;
+
+
+SELECT E.employee_name
+FROM Employee E
+JOIN Works W ON E.employee_name = W.employee_name
+JOIN Company C ON W.company_name = C.company_name
+WHERE E.city = C.city;
+
+
+SELECT E.employee_name
+FROM Employee E
+JOIN Manages M ON E.employee_name = M.employee_name
+JOIN Employee MGR ON M.manager_name = MGR.employee_name
+WHERE E.city = MGR.city AND E.street = MGR.street;
+
+
+SELECT employee_name
+FROM Works
+WHERE company_name <> 'First Bank Corporation';
+
+
+UPDATE Works
+SET salary = salary * 1.10
+WHERE company_name = 'First Bank Corporation';
+
+
+DELETE FROM Works
+WHERE company_name = 'Small Bank Corporation';
+
+
+Practical 22
+
+Employee(employee_name, street, city)
+Works(employee_name, company_name, salary)
+Company(company_name, city)
+Manages(employee_name, manager_name)
+
+
+
+SELECT employee_name
+FROM Works
+WHERE salary > (
+    SELECT MAX(salary)
+    FROM Works
+    WHERE company_name = 'Small Bank Corporation'
+);
+
+
+SELECT DISTINCT C1.company_name
+FROM Company C1
+WHERE NOT EXISTS (
+    SELECT city
+    FROM Company C2
+    WHERE C2.company_name = 'Small Bank Corporation'
+    AND C2.city NOT IN (
+        SELECT city
+        FROM Company C3
+        WHERE C3.company_name = C1.company_name
+    )
+);
+
+
+
+SELECT W1.employee_name, W1.company_name, W1.salary
+FROM Works W1
+WHERE W1.salary > (
+    SELECT AVG(W2.salary)
+    FROM Works W2
+    WHERE W2.company_name = W1.company_name
+);
+
+
+
+SELECT company_name
+FROM Works
+GROUP BY company_name
+ORDER BY COUNT(employee_name) DESC
+LIMIT 1;
+
+
+
+SELECT company_name
+FROM Works
+GROUP BY company_name
+ORDER BY SUM(salary) ASC
+LIMIT 1;
+
+
+SELECT company_name
+FROM Works
+GROUP BY company_name
+HAVING AVG(salary) > (
+    SELECT AVG(salary)
+    FROM Works
+    WHERE company_name = 'First Bank Corporation'
+);
+
+
+
+UPDATE Employee
+SET city = 'Newtown'
+WHERE employee_name = 'Jones';
+
+
+
+Practical 23
+
+
+CREATE TABLE emp (
+  Eno INT AUTO_INCREMENT PRIMARY KEY,  -- Acts as sequence starting from 101
+  Ename VARCHAR(50) NOT NULL,
+  Address VARCHAR(100) DEFAULT 'Nashik',
+  Joindate DATE
+) AUTO_INCREMENT = 101;
+
+
+ALTER TABLE emp ADD COLUMN Post VARCHAR(50);
+
+
+
+INSERT INTO emp (Ename, Address, Joindate, Post)
+VALUES
+('Ravi', 'Mumbai', '2024-03-10', 'Manager'),
+('Sneha', DEFAULT, '2024-04-05', 'Developer'),
+('Amit', 'Pune', '2024-05-01', 'Tester'),
+('Geeta', 'Nashik', '2024-06-15', 'Analyst');
+
+
+
+CREATE INDEX idx_ename ON emp(Ename);
+
+
+ALTER TABLE emp ADD COLUMN Salary DECIMAL(10,2);
+
+
+UPDATE emp SET Salary = 50000 WHERE Ename = 'Ravi';
+UPDATE emp SET Salary = 45000 WHERE Ename = 'Sneha';
+UPDATE emp SET Salary = 35000 WHERE Ename = 'Amit';
+UPDATE emp SET Salary = 40000 WHERE Ename = 'Geeta';
+
+
+CREATE VIEW emp_view AS
+SELECT Ename, Salary
+FROM emp;
+
+
+SELECT * FROM emp_view;
+
+
+SHOW INDEX FROM emp;
+SHOW FULL TABLES WHERE TABLE_TYPE = 'VIEW';
+
+
+
+
+
+
+
+
